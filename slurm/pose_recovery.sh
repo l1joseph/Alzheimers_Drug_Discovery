@@ -28,7 +28,7 @@ python -c "import torch; print('cuda:', torch.cuda.is_available(), 'devices:', t
 
 cd "$PROJECT/tools/boltz"
 boltz predict "$PROJECT/data/pose_recovery_inputs" \
-    --use_msa_server \
+     \
     --no_kernels \
     --cache "$BOLTZ_CACHE" \
     --out_dir "$WORK" \

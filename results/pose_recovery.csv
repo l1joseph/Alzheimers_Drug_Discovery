@@ -1,6 +1,6 @@
-case,name,status
-6RJ6_K5K,BI-4924,no_prediction
-6PLF_ONV,NCT-series-cmpd-1,no_prediction
-6PLG_ONS,NCT-series-cmpd-15,no_prediction
-6RJ3_K58,BI-cmpd-15,no_prediction
-7EWH_HMT,Homoharringtonine,no_prediction
+ca_align_rmsd,case,centroid_rmsd,heavy_atom_rmsd,n_crystal_atoms,n_pairs,n_pred_atoms,name,pred_cif,status
+17.945,6RJ6_K5K,30.832,31.679,32,105,32,BI-4924,6RJ6_K5K_model_0.cif,ok
+9.341,6PLF_ONV,0.29,4.716,33,301,33,NCT-series-cmpd-1,6PLF_ONV_model_0.cif,ok
+11.177,6PLG_ONS,1.137,6.289,35,298,35,NCT-series-cmpd-15,6PLG_ONS_model_0.cif,ok
+11.217,6RJ3_K58,0.698,6.019,26,292,26,BI-cmpd-15,6RJ3_K58_model_0.cif,ok
+9.325,7EWH_HMT,1.102,5.056,39,298,39,Homoharringtonine,7EWH_HMT_model_0.cif,ok
