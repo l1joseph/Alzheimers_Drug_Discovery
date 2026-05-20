@@ -69,6 +69,12 @@ flowchart LR
 
 ---
 
+## The target — PHGDH catalytic domain, substrate + cofactor cleft
+
+![PHGDH catalytic domain with bound 3PG and NADH, pocket centre marked](docs/figures/phgdh_pocket.png)
+
+PDB **6CWA** at 1.77 Å — human PHGDH chain A (residues 6–278) with native ligands. Backbone trace in blue, **3-phosphoglycerate** (substrate) as circles, **NADH** (cofactor) as diamonds, atoms element-coloured. The lime star marks the pocket centre TamGen is conditioned on, with the 10 Å sampling sphere as wireframe.
+
 ## Why this design
 
 PHGDH catalyses the first committed step of serine biosynthesis, but recent work shows a **moonlighting transcriptional role**: NADH binding activates direct DNA contact, driving a gene-regulatory program implicated in sporadic Alzheimer's disease. Blocking the NADH-activated form (without disrupting general serine biosynthesis) is the therapeutic axis. NCT-503 — the allosteric PHGDH inhibitor used in the Park *et al.* mouse studies — provides proof-of-concept in vivo.
