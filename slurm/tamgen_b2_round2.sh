@@ -20,10 +20,9 @@ source ~/miniforge3/etc/profile.d/conda.sh
 conda activate tamgen-rocm
 cd $PROJECT/tools/TamGen
 SCAFFOLD_FILE=$WORK/seeds.txt
-# Augment each seed 5x for diversity
-python3 << 'PYEOF2'
+# Augment each seed 5x for diversity (unquoted heredoc → $PROJECT/$SCAFFOLD_FILE expand)
+python3 << PYEOF2
 from rdkit import Chem
-import os
 seeds = open("$PROJECT/data/round2_b2_seeds.txt").read().splitlines()
 out = set()
 for smi in seeds:
