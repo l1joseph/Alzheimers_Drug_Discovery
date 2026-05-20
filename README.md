@@ -82,22 +82,6 @@ See [`PLAN.md`](PLAN.md) for the full plan, strategic decisions, and citations.
 
 ---
 
-## Status
-
-| Phase | What | Status |
-|---|---|---|
-| 0 | Environment setup (Boltz + TamGen on ROCm) | ✅ |
-| 1 | Smoke tests (real inference end-to-end on MI300A) | ✅ |
-| 4 | Druggability scoring (FPocket on 4 conformations) | ✅ |
-| 5 | Library staging (10 known binders + 7 PKU drugs curated) | ✅ |
-| 6 | **Round-0 baseline calibration** — top: NCT-cmpd-15, BI-4924, NCT-cmpd-1; bottom: 3PG, NCT-503-parent. Boltz-2 correctly ranks medicinal-chem analogues. | ✅ |
-| 8 | TamGen de novo rounds 1 + 2 (90 candidates) | ✅ |
-| 9 | Branch B2 scaffold-seeded (BI-4924 family) | 🏃 |
-| 2 | Pose-recovery validation against crystal poses | ⏳ |
-| 7 | Full library screen (DrugBank + ChEMBL) | ⏳ |
-
----
-
 ## Quick start
 
 ```bash
