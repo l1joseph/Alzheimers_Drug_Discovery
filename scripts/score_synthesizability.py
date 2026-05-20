@@ -28,25 +28,26 @@ sys.path.insert(0, str(_rdkit_root / "Contrib" / "SA_Score"))
 import sascorer  # noqa: E402
 
 
-def lookup_smiles_from_yamls(input_id: str) -> str:
-    """Find the SMILES given a leaderboard input_id by checking all YAML dirs."""
+def build_smiles_index() -> dict[str, str]:
+    """Walk every data/*_yamls/ dir once and build {input_id → ligand SMILES}.
+
+    O(N) one-shot; replaces O(N·D) per-row filesystem probes.
+    Auto-discovers any directory matching data/*_yamls so new branches drop in.
+    """
     import yaml as yaml_lib
     PROJECT = Path(__file__).resolve().parent.parent
-    yaml_dirs = [
-        PROJECT / "data" / "round0_yamls",
-        PROJECT / "data" / "tamgen_round1_yamls",
-        PROJECT / "data" / "tamgen_round2_yamls",
-        PROJECT / "data" / "tamgen_b1_yamls",
-        PROJECT / "data" / "tamgen_b2_yamls",
-    ]
-    for d in yaml_dirs:
-        p = d / f"{input_id}.yaml"
-        if p.exists():
-            y = yaml_lib.safe_load(open(p))
-            for s in y["sequences"]:
-                if "ligand" in s:
-                    return s["ligand"]["smiles"]
-    return ""
+    index: dict[str, str] = {}
+    for d in (PROJECT / "data").glob("*_yamls"):
+        for p in d.glob("*.yaml"):
+            try:
+                y = yaml_lib.safe_load(open(p))
+            except Exception:
+                continue
+            for s in y.get("sequences", []):
+                if "ligand" in s and "smiles" in s["ligand"]:
+                    index[p.stem] = s["ligand"]["smiles"]
+                    break
+    return index
 
 
 def main():
@@ -61,11 +62,14 @@ def main():
     params.AddCatalog(FilterCatalogParams.FilterCatalogs.BRENK)
     catalog = FilterCatalog(params)
 
+    smiles_index = build_smiles_index()
+    print(f"built SMILES index: {len(smiles_index)} entries")
+
     rows = list(csv.DictReader(open(args.inp)))
     out_rows = []
     for r in rows:
         input_id = r["id"]
-        smi = lookup_smiles_from_yamls(input_id)
+        smi = smiles_index.get(input_id, "")
         mol = Chem.MolFromSmiles(smi) if smi else None
         if mol is None:
             r.update({"smiles": smi, "sa_score": "", "mw": "", "logp": "", "hbd": "", "hba": "",
@@ -117,14 +121,15 @@ def main():
     print(f"wrote {len(out_rows)} rows to {args.out}; {n_pass} pass drug-like filter")
     print(f"\n=== Top-25 by affinity, drug-like filter applied ===")
     out_rows.sort(key=lambda r: float(r["affinity_pred_value"]) if r["affinity_pred_value"] else 999)
-    n_shown = 0
-    for r in out_rows:
-        if n_shown >= 25: break
-        pass_str = "✓" if r["drug_like_pass"] == "1" else "✗"
+    for r in out_rows[:25]:
+        flag = "✓" if r["drug_like_pass"] == "1" else "✗"
+        try:
+            aff = float(r["affinity_pred_value"])
+        except (TypeError, ValueError):
+            continue
         sa = r["sa_score"] or "?"
-        print(f"  {pass_str}  {r['id']:10s} {r['source'][:14]:14s} aff={r['affinity_pred_value']:>+7.7s} "
+        print(f"  {flag}  {r['id']:10s} {r['source'][:14]:14s} aff={aff:+6.2f}  "
               f"SA={sa:>5s} MW={r['mw']:>6s} logP={r['logp']:>5s} PAINS={r['pains']}")
-        n_shown += 1
 
 
 if __name__ == "__main__":

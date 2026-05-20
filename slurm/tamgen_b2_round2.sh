@@ -20,21 +20,7 @@ source ~/miniforge3/etc/profile.d/conda.sh
 conda activate tamgen-rocm
 cd $PROJECT/tools/TamGen
 SCAFFOLD_FILE=$WORK/seeds.txt
-# Augment each seed 5x for diversity (unquoted heredoc → $PROJECT/$SCAFFOLD_FILE expand)
-python3 << PYEOF2
-from rdkit import Chem
-seeds = open("$PROJECT/data/round2_b2_seeds.txt").read().splitlines()
-out = set()
-for smi in seeds:
-    m = Chem.MolFromSmiles(smi)
-    if m is None: continue
-    out.add(Chem.MolToSmiles(m, canonical=True))
-    for _ in range(5):
-        out.add(Chem.MolToSmiles(m, doRandom=True, canonical=False))
-with open("$SCAFFOLD_FILE", "w") as f:
-    for s in out: f.write(s + "\n")
-print(f"wrote {len(out)} augmented seeds")
-PYEOF2
+python $PROJECT/scripts/augment_smiles.py --in $PROJECT/data/round2_b2_seeds.txt --n 5 --out $SCAFFOLD_FILE
 python scripts/build_data/prepare_pdb_ids_center_scaffold.py \
     $PROJECT/tamgen_input.csv gen_6cwa_r2b2 \
     -o $WORK/data -t 10 --scaffold-file $SCAFFOLD_FILE 2>&1 | tail -5

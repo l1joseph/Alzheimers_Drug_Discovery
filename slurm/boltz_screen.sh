@@ -7,9 +7,12 @@
 #SBATCH --time=06:00:00
 
 # Run Boltz-2 affinity scoring over a directory of YAML inputs.
-# Usage: sbatch slurm/boltz_screen.sh <yaml_dir> <run_label>
+# Usage: sbatch --job-name=<custom> slurm/boltz_screen.sh <yaml_dir> <run_label>
 #   yaml_dir:  directory of *.yaml input files (one per ligand)
-#   run_label: short label, used in scratch path and results dir
+#   run_label: short label, used in scratch path and `results/<label>/scores.csv`
+#
+# After scoring, calls scripts/build_leaderboard.py to merge with all other
+# completed branches (with flock to avoid race when concurrent jobs finish).
 
 set -euo pipefail
 
@@ -52,6 +55,10 @@ echo "=== Aggregating affinity scores ==="
 mkdir -p "$PROJECT/results/$RUN_LABEL"
 python "$PROJECT/scripts/aggregate_boltz.py" \
     --pred-dir "$WORK_OUT" \
-    --out-csv "$PROJECT/results/$RUN_LABEL/affinity_scores.csv"
+    --out-csv "$PROJECT/results/$RUN_LABEL/scores.csv"
+
+echo
+echo "=== Rebuilding combined leaderboard (flock-guarded) ==="
+python "$PROJECT/scripts/build_leaderboard.py"
 
 echo "=== Done at $(date) ==="
