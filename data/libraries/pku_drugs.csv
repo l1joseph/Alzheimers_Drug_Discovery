@@ -1,0 +1,8 @@
+id,name,smiles,source,notes
+SAPROPT,Sapropterin,C[C@@H]([C@@H]([C@H]1CNC2=C(N1)C(=O)NC(=N2)N)O)O,PubChem,FDA-approved PKU therapy (BH4 form); pterin cofactor mimic
+TETHYBIO,Tetrahydrobiopterin,CC(C(C1CNC2=C(N1)C(=O)NC(=N2)N)O)O,PubChem,Natural BH4 cofactor; pterin scaffold related to NADH cofactor pocket binders
+SEPIAPT,Sepiapterin,C[C@@H](C(=O)C1=NC2=C(NC1)N=C(NC2=O)N)O,PubChem,Investigational PKU therapy; BH4 precursor
+LPHE,L-phenylalanine,C1=CC=C(C=C1)C[C@@H](C(=O)O)N,PubChem,PKU substrate; negative control for PHGDH pocket
+METHOTREX,Methotrexate,CN(CC1=CN=C2C(=N1)C(=NC(=N2)N)N)C3=CC=C(C=C3)C(=O)N[C@@H](CCC(=O)O)C(=O)O,PubChem,Pterin-containing antifolate; tests broader pterin scaffold fit
+FOLIC,Folic-acid,C1=CC(=CC=C1C(=O)N[C@@H](CCC(=O)O)C(=O)O)NCC2=CN=C3C(=N2)C(=O)NC(=N3)N,PubChem,Folate cofactor; another pterin scaffold reference
+MTHF,5-methyltetrahydrofolate,CN1C(CNC2=C1C(=O)NC(=N2)N)CNC3=CC=C(C=C3)C(=O)N[C@@H](CCC(=O)O)C(=O)O,PubChem,Active folate; pterin-folate hybrid scaffold

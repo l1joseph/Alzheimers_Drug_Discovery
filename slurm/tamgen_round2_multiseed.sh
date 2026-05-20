@@ -56,29 +56,8 @@ for SEED in 1 7 42 101 1729; do
   echo "  seed $SEED: $(tail -n +2 $CSV | wc -l) SMILES"
 done
 
-# Final dedup by canonical SMILES
-python3 << EOF
-import csv
-from rdkit import Chem
-rows = list(csv.DictReader(open("$ALL")))
-print(f"\\n=== total samples: {len(rows)} ===")
-seen = set()
-out = []
-for r in rows:
-    mol = Chem.MolFromSmiles(r['smiles'])
-    if mol is None: continue
-    canon = Chem.MolToSmiles(mol)
-    if canon in seen: continue
-    seen.add(canon)
-    r['canonical_smiles'] = canon
-    out.append(r)
-print(f"unique canonical: {len(out)}")
-
-import os
-os.makedirs("$PROJECT/results/tamgen_round2", exist_ok=True)
-with open("$PROJECT/results/tamgen_round2/samples.csv", "w") as f:
-    w = csv.DictWriter(f, fieldnames=['test_id','seed','smiles','canonical_smiles','nlogP'])
-    w.writeheader(); w.writerows(out)
-print(f"wrote $PROJECT/results/tamgen_round2/samples.csv")
-EOF
+mkdir -p $PROJECT/results/tamgen_round2
+python $PROJECT/scripts/dedup_smiles.py \
+    --in $ALL \
+    --out $PROJECT/results/tamgen_round2/samples.csv
 echo "=== Done at $(date) ==="

@@ -10,11 +10,16 @@ data/msa_test/
 data/msa_test2/
 data/round0_yamls/
 data/tamgen_round1_yamls/
+data/tamgen_round2_yamls/
+data/tamgen_b*_yamls/
 data/pose_recovery_inputs/
+data/msa_test*/
 results/predictions/
 results/runs/
 results/smoke/*.cif
 results/smoke/*.npz
+results/smoke/manifest.json
+results/smoke/affinity.json
 results/druggability/*_out/
 .claude/
 tools/
