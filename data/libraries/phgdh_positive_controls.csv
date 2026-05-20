@@ -1,0 +1,8 @@
+id,name,smiles,source_pdb,source,notes
+K5K,BI-4924,Cc1cc2c(cc(n2C)C(=O)N[C@H](CO)c3ccc(cc3)S(=O)(=O)CC(=O)O)c(c1Cl)Cl,6RJ6,Boehringer-Ingelheim,NAD-competitive nM-range PHGDH inhibitor; co-crystal pose available
+K58,BI-compound-15,C[C@H](c1ccc(cc1)C(=O)O)NC(=O)c2cc(nn2C)c3ccccc3,6RJ3,Boehringer-Ingelheim,BI series highest-res PHGDH co-crystal (1.42 A)
+ONV,NCT-series-compound-1,OC(=O)c1ccc(C(NC(=O)c2cc3cc(OCC4CNC(=O)O4)c(Cl)cc3n2)CO)cc1,6PLF,Pacold-2016-NatChemBiol,NCT-series indole-carboxamide allosteric inhibitor
+ONS,NCT-series-compound-15,Cn1c(cc2c(Cl)c(Cl)ccc12)C(=O)NC3(COC3)c4ccc(cc4)[C@H](C(O)=O)c5cccnc5,6PLG,Pacold-2016-NatChemBiol,NCT-series allosteric inhibitor with pyridyl group
+HMT,Homoharringtonine,COC(=O)C[C@](O)(CCCC(C)(C)O)C(=O)O[C@H]1[C@H]2c3cc4OCOc4cc3CCN5CCC[C@]25C=C1OC,7EWH,natural-product,Cephalotaxus alkaloid; PHGDH binder identified by virtual screening
+3PG,3-phosphoglycerate,OP(=O)(O)OCC(O)C(=O)O,6CWA,endogenous-substrate,Native substrate; should bind cleanly to substrate subsite
+NAI,NADH,NC(=O)C1=CN(C=CC1)[C@@H]2O[C@H](CO[P@@](O)(=O)O[P@](O)(=O)OC[C@H]3O[C@H]([C@H](O)[C@@H]3O)n4cnc5c(N)ncnc45)[C@@H](O)[C@H]2O,6CWA,endogenous-cofactor,Native cofactor; expected to bind the Rossmann pocket strongly

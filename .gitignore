@@ -1,0 +1,20 @@
+# logs (keep .gitkeep)
+logs/*
+!logs/.gitkeep
+
+# heavy artifacts (raw + derived data — regenerate via scripts/prep_targets.py)
+data/structures/*.cif
+data/targets/*.pdb
+results/predictions/
+results/runs/
+results/smoke/
+tools/
+
+# python
+*.pyc
+__pycache__/
+*.egg-info/
+
+# env
+.env
+.env.*

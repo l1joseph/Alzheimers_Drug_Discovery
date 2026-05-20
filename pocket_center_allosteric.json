@@ -1,0 +1,11 @@
+{
+  "source_pdb": "6PLF",
+  "ligand_resname": "ONV",
+  "aligned_frame": "6CWA chain A",
+  "alignment_rmsd": 3.9818554325583686,
+  "alignment_residues": 299,
+  "center_x": 13.396549224853516,
+  "center_y": 5.041983604431152,
+  "center_z": 28.199819564819336,
+  "radius_angstrom": 10
+}
