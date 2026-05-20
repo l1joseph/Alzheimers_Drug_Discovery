@@ -71,9 +71,9 @@ flowchart LR
 
 ## The target — PHGDH catalytic domain, substrate + cofactor cleft
 
-![PHGDH catalytic domain with bound 3PG and NADH, pocket centre marked](docs/figures/phgdh_pocket.png)
+![PHGDH catalytic domain with bound 3PG and NADH, pocket centre marked](docs/figures/phgdh_pymol.png)
 
-PDB **6CWA** at 1.77 Å — human PHGDH chain A (residues 6–278) with native ligands. Backbone trace in blue, **3-phosphoglycerate** (substrate) as circles, **NADH** (cofactor) as diamonds, atoms element-coloured. The lime star marks the pocket centre TamGen is conditioned on, with the 10 Å sampling sphere as wireframe.
+PDB **6CWA** at 1.77 Å — human PHGDH chain A (residues 6–278). Cartoon ribbon in sky-blue, pocket-lining residues within 5 Å of the bound ligands in salmon. **3-phosphoglycerate** (substrate, yellow carbons) and **NADH** (cofactor, magenta carbons) as sticks. The translucent lime sphere marks the pocket centre TamGen is conditioned on.
 
 ## Why this design
 
