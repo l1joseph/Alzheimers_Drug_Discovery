@@ -13,11 +13,16 @@ Usage:
 import argparse
 import csv
 import sys
+from typing import Optional
 
-from rdkit import Chem
+from rdkit import Chem, RDLogger
+
+RDLogger.DisableLog("rdApp.*")  # silence per-row SMILES parse errors
 
 
-def canonical(smi: str) -> str | None:
+def canonical(smi: Optional[str]) -> Optional[str]:
+    if not smi:
+        return None
     mol = Chem.MolFromSmiles(smi)
     return Chem.MolToSmiles(mol) if mol is not None else None
 
