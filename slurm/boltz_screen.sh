@@ -18,6 +18,8 @@ set -euo pipefail
 
 YAML_DIR="${1:?need yaml_dir as arg 1}"
 RUN_LABEL="${2:?need run_label as arg 2}"
+# absolutize before we cd into tools/boltz/
+YAML_DIR=$(readlink -f "$YAML_DIR")
 
 PROJECT="/cosmos/nfs/home/l1joseph/Alzheimers_Drug_Discovery"
 SCRATCH="/cosmos/vast/scratch/l1joseph"
