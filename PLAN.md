@@ -2,167 +2,244 @@
 
 ## Context
 
-Recent work (Park et al., *Nature* 2025) showed that **PHGDH** has a moonlighting transcriptional role: NADH binding triggers DNA-binding activity that drives a gene-regulatory program implicated in sporadic Alzheimer's disease. NCT-503 (a known allosteric PHGDH inhibitor from cancer-metabolism work) blocked this activity in mice. **Goal**: identify additional small-molecule binders to the PHGDH catalytic domain — both novel (de novo design) and from existing compound libraries (repurposing) — that compete with or otherwise block the NADH-driven activation.
+Recent work (Park *et al.*, *Nature* 2025 — PubMed 40273909) showed that **PHGDH has a moonlighting transcriptional role**: NADH binding activates a DNA-binding capability that drives a gene-regulatory program implicated in sporadic Alzheimer's disease. NCT-503 (a known allosteric PHGDH inhibitor from cancer-metabolism work) blocked this activity in mouse models and improved cognition.
 
-**Strategy**: dual-mode in silico screen on the **AMD MI300A** nodes of SDSC Cosmos.
-- **TamGen** (Microsoft, target-aware chemical LM) → de novo SMILES generation conditioned on the PHGDH pocket
-- **Boltz-2** (Wohlwend lab) → complex prediction + affinity scoring for both de novo candidates and existing libraries
+**Goal**: identify small-molecule binders to the PHGDH catalytic domain — both novel (de novo design) and modified versions of existing PHGDH-interacting drugs — that compete with or otherwise block the **NADH-driven DBD activation**. Run all compute on the **SDSC Cosmos AMD MI300A / ROCm 6.3** stack.
 
-**Why ROCm matters here**: Cosmos has no NVIDIA hardware. Both tools default to CUDA; install plan addresses that.
+---
+
+## Biology background (mechanism we are targeting)
+
+PHGDH plays two distinct roles:
+
+**Role 1: enzymatic** (serine biosynthesis pathway).
+3-phosphoglycerate (3PG) → 3-phosphohydroxypyruvate via NAD⁺/NADH redox. Standard textbook function; well-characterized.
+
+**Role 2: moonlighting transcriptional regulator** (recently discovered).
+A subpopulation of PHGDH binds DNA directly and modulates gene expression. The DBD function is **activated by NADH binding** at the cofactor pocket — i.e., the same Rossmann fold that handles cofactor for enzymatic turnover, in a different conformational mode, controls transcriptional activity. This is the axis Park *et al.* implicate in sporadic AD.
+
+**Why this matters for design**:
+- The druggable mechanism is to **block NADH-driven DBD activation**, ideally without disrupting enzymatic serine biosynthesis broadly (selectivity goal).
+- A small molecule that occupies or allosterically locks the NADH subsite should block DBD activation. NCT-503 demonstrates the proof-of-concept in vivo.
+
+**Strategic decisions log**:
+
+| Decision | Rationale |
+|---|---|
+| **Do NOT pursue 3PG-mimetic / substrate-blocking axis** | Zhong *et al.* (Cell, citation TBD) showed 3PG **accumulation is not pathogenic** — blocking substrate flux is not a useful AD therapeutic axis. |
+| **Target the NADH subsite (Rossmann pocket) as primary** | This is the activator binding event for the DBD moonlighting function. Direct competition with NADH is the cleanest mechanistic disruption. |
+| **Also target the NCT-503 allosteric site (within the catalytic domain)** | NCT-503 binds an allosteric pocket dependent on Cys234 (in the catalytic domain, not the ACT domain). It works *in vivo*, so this site is validated. |
+| **Use an ensemble of crystal-state conformations, not one PDB** | Literature does not establish whether 3PG induces a meaningful conformational change. Test empirically by screening across apo / +3PG / independent-crystal conformations. |
+| **Side-chain repack of holo-stripped pockets** | 6CWA was crystallized holo (NADH + 3PG). Stripping ligands leaves induced-fit holo backbone with empty pocket — repack relaxes rotamers toward apo-compatible state. |
+| **Iterative scaffold-seeded design (closed loop)** | Use known PHGDH binders (NCT-503, BI-4924, HHT) as starting scaffolds in TamGen; score with Boltz-2; feed top hits back as next-round seeds. Directed evolution of small molecules. |
 
 ---
 
 ## Pipeline overview
 
 ```
-                ┌──────────────────────┐
-PHGDH PDBs ────▶│ Target prep          │──▶ 4-conformation ensemble (apo×2, +3PG, allosteric)
-(6CWA, 2G76,   │ (strip ligs, repack) │
- 6PLF, 6RJ3,   └──────────┬───────────┘
- 6RJ6)                    │
-                          ├─────────────────┐
-                          ▼                 ▼
-                  ┌───────────────┐  ┌────────────────────────┐
-                  │ TamGen        │  │ Compound libraries     │
-                  │ pocket-cond.  │  │ DrugBank approved      │
-                  │ generation    │  │ ChEMBL drug-like       │
-                  │ N=1000/site   │  │ PHGDH pos. controls    │
-                  └──────┬────────┘  └──────────┬─────────────┘
-                         │                      │
-                         ├──── RDKit ───────────┤  (validity, Lipinski, PAINS)
-                         ▼                      ▼
-                       ┌──────────────────────────┐
-                       │ Boltz-2 affinity scoring │
-                       │  - binary (apo target)   │
-                       │  - ternary (+3PG)        │
-                       │ across all conformations │
-                       └────────────┬─────────────┘
-                                    ▼
-                       ┌──────────────────────────┐
-                       │ Consensus ranking        │
-                       │ • top-K across ensemble  │
-                       │ • pos-control sanity     │
-                       │ • mechanism class        │
-                       └──────────────────────────┘
+                                ┌──────────────────────┐
+PHGDH PDBs ────────────────────▶│ Target prep         │──▶ 4-conformation ensemble
+(6CWA, 2G76, 6PLF, 6RJ3, 6RJ6,  │ (strip + repack +    │   (apo×2, +3PG, allosteric)
+ 6PLG, 7EWH)                    │  align allosteric)   │
+                                └──────────┬───────────┘
+                                           │
+                ┌──────────────────────────┼──────────────────────────────┐
+                ▼                          ▼                              ▼
+┌────────────────────────┐   ┌────────────────────────┐    ┌────────────────────────┐
+│ (A) Library screen     │   │ (B) De novo TamGen     │    │ (C) Scaffold-seeded    │
+│ - DrugBank approved    │   │     pocket-conditioned │    │     iterative design   │
+│ - ChEMBL drug-like     │   │     no scaffold        │    │     (closed loop)      │
+│ - Positive controls    │   │                        │    │  ┌─Round 0: known binders→
+│ - Known PHGDH binders  │   │                        │    │  ├─Round 1: TamGen seeded─
+│ - PKU drug subset      │   │                        │    │  │  ↓ Boltz-2 score      │
+└──────────┬─────────────┘   └──────────┬─────────────┘    │  ├─Round 2: top-K seeds──
+           │                            │                  │  │  ↓                    │
+           ├── RDKit filter ────────────┤                  │  └─ ...until plateau────┘
+           │   (Lipinski, PAINS,        │                  └──────────┬─────────────┘
+           │    valid SMILES)           │                             │
+           ▼                            ▼                             ▼
+         ┌─────────────────────────────────────────────────────────────────┐
+         │ Boltz-2 affinity scoring (--no_kernels for ROCm)               │
+         │  - binary mode (protein + ligand)        ← C1 (apo)            │
+         │  - ternary mode (+ 3PG as co-ligand)     ← C2                  │
+         │  scored across all 4 target conformations                      │
+         └────────────────────────────┬────────────────────────────────────┘
+                                      ▼
+         ┌─────────────────────────────────────────────────────────────────┐
+         │ Consensus ranking + mechanism classification                   │
+         │  - top-K Jaccard across conformations (robust hits)            │
+         │  - positive-control rank check (calibration)                   │
+         │  - 3PG-tolerant vs 3PG-sensitive (NADH-competitive vs not)     │
+         │  - improvement vs round-0 known-binder baseline                │
+         └─────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
 ## Targets and conditions
 
-### Why 4 conformations, not 1
-
-The literature does **not** establish whether 3PG induces a meaningful conformational change in PHGDH. Rather than assume, we screen against an ensemble of crystal-state conformations and treat consensus as the strongest signal.
+The construct in 6CWA is residues 6–278 (catalytic N-terminal half only; ACT regulatory domain not present). All targeting happens within this construct's two pockets: the **substrate+cofactor cleft** (orthosteric, containing the NADH subsite) and the **NCT-503 allosteric site** (Cys234-adjacent, within the catalytic domain).
 
 | Conformation | PDB | State | Resolution | Purpose |
 |---|---|---|---|---|
-| C1 — 6CWA apo | 6CWA | Holo backbone, ligands stripped, side-chain repacked | 1.77 Å | Primary; closest to native substrate-bound geometry, empty cleft |
-| C2 — 6CWA + 3PG | 6CWA | 3PG re-injected from CIF, NADH still out | 1.77 Å | Tests for 3PG-tolerant (NADH-competitive) binders |
-| C3 — 2G76 apo | 2G76 | Independent crystal, D-malate stripped, repacked, longer construct (res 3–314) | 1.7 Å | Tests for conformation-bias artifacts in C1 |
-| C4 — 6PLF allosteric pocket | 6PLF → aligned to 6CWA frame | NCT-503-style allosteric site, separate from substrate cleft | 1.7 Å | Second druggable site within the catalytic domain |
+| **C1** — 6CWA apo | 6CWA | Holo backbone, ligands stripped, side-chain repacked | 1.77 Å | Primary; closest to native NADH-bound geometry |
+| **C2** — 6CWA + 3PG | 6CWA | 3PG re-injected, NADH out | 1.77 Å | Tests for 3PG-tolerant (NADH-competitive) binders |
+| **C3** — 2G76 apo | 2G76 | Independent crystal, D-malate stripped, repacked, longer construct (res 3–314) | 1.7 Å | Tests for conformation-bias artifacts in C1 |
+| **C4** — 6PLF allosteric pocket | 6PLF → aligned to 6CWA frame | NCT-503-style allosteric site within catalytic domain | 1.7 Å | Second druggable site |
 
-Consensus hit = scores top-10% in **C1 ∩ C3** (substrate cleft, robust across two independent backbones).
-Mechanism-classified hit = scores top-10% in **C1 but not C2** → likely 3PG-competitive; top-10% in **both C1 and C2** → likely NADH-competitive or peripheral.
+**Pocket centers** (6CWA chain-A frame):
+- Substrate+cofactor cleft (NADH centroid): **(9.58, 0.40, 29.83) Å**, radius 10 Å — verified by `prep_targets.py` against NADH HETATM centroid.
+- Allosteric (NCT-503 site, from 6PLF→6CWA alignment): **(13.40, 5.04, 28.20) Å**, radius 10 Å. NB: alignment RMSD was 3.98 Å over 299 residues — substantial conformational difference between holo and inhibitor-bound states; allosteric pocket may overlap with NADH subsite in 6CWA's frame.
 
-### Pocket center
-
-From `pocket_center.json`: (x, y, z) = (9.584, 0.395, 29.832) Å, radius 10 Å in the 6CWA frame. This is the substrate+cofactor cleft (verified: 3PG centroid ≈ (−1, −4, 32), NADH P-A ≈ (12, −1, 33) — both within 10 Å of the center).
-
-Allosteric pocket center: to be derived in Task #14 by aligning 6PLF to 6CWA and computing the centroid of the bound NCT-series ligand atoms.
+**Consensus rules**:
+- **Robust hit** = top-10% in C1 ∩ C3 (substrate cleft, two independent backbones).
+- **NADH-competitive** = top-10% in both C1 AND C2 (binds in presence of 3PG → not 3PG-competitive).
+- **3PG-competitive** = top-10% in C1 only, loses rank in C2.
+- **Allosteric** = top-10% in C4 only.
 
 ---
 
-## Compound library (virtual-screen branch)
+## Iterative scaffold-seeded design loop (new branch)
+
+The closed-loop design that turns TamGen + Boltz-2 into a directed-evolution engine for small molecules.
+
+**Inputs**:
+- A target pocket (C1, C4, or both)
+- A set of seed scaffolds — Round 0 seeds are known PHGDH binders below
+
+**Round 0 — baseline affinity benchmark**:
+Score known PHGDH-interacting drugs with Boltz-2 across all four conformations to establish the affinity-distribution baseline.
+- **Round-0 seed set**: NCT-503, BI-4924 (K5K), BI compound 15 (K58), NCT-cmpd-1 (ONV), NCT-cmpd-15 (ONS), homoharringtonine (HMT), CBR-5884, indole-carboxamide series.
+- **Output**: `results/round_0_baseline.csv` with affinity scores per (compound, conformation). Sets the bar that later rounds must clear.
+
+**Round N (N ≥ 1) — seeded generation**:
+For each seed in the round's seed pool:
+1. Run TamGen with `prepare_pdb_ids_center_scaffold.py` style — keep the scaffold core, generate periphery variants conditioned on the target pocket.
+2. Sample M variants per seed (default M=200).
+3. Filter: valid SMILES, Lipinski (mol_wt 150–500, logP < 5, HBD ≤ 5, HBA ≤ 10), no PAINS, Tanimoto distance > 0.3 from the seed (force novelty).
+4. Score all survivors with Boltz-2 affinity (target conformations C1 + C4).
+5. **Convergence check**: if no variant beats the seed by ≥ Δ (default 0.3 log Kd) AND no variant has confidence_score > seed's, drop that seed.
+
+**Update seed pool**:
+- Variants with improvement Δ vs. parent seed become seeds for round N+1.
+- Cap seed pool at top-K (default K=20) to control compute.
+- **Hard stop**: 5 rounds OR seed pool empty OR cumulative GPU-budget exceeded.
+
+**Output**:
+- `results/iterative_loop/round_{N}_ranked.csv` per round.
+- `results/iterative_loop/affinity_trajectory.png` — per-lineage improvement curve.
+- `results/iterative_loop/final_top.sdf` — top-50 with predicted complexes + lineage to original seed.
+
+**Two parallel sub-branches**:
+- **B1 — NCT-503 family optimization**: seed pool = NCT-series (cmpd 1, cmpd 15, NCT-503 itself). Target site = C4 (allosteric). Goal: NCT-503 analogues with better predicted affinity, drug-likeness, or peripheral atoms compatible with BBB delivery.
+- **B2 — BI-4924 family optimization**: seed pool = BI-series (K5K, K58). Target site = C1 (substrate cleft / NADH subsite). Goal: NAD-competitive scaffolds with the same backbone but different chemistry.
+
+**Optional B3 — PKU drug repurposing**:
+PKU (phenylketonuria) drugs target phenylalanine hydroxylase (PAH), a related cofactor-dependent enzyme. Some PKU drug scaffolds (e.g., sapropterin / BH4 analogues, pegvaliase substrate mimetics) may serve as starting scaffolds for PHGDH NADH-pocket binders due to overlapping cofactor binding geometries. Run B1-style iterative loop seeded from FDA-approved PKU drugs. Lower priority; only if B1/B2 plateau early.
+
+---
+
+## Compound library (Branch A — virtual screen)
 
 | Set | Size | Source | Purpose |
 |---|---|---|---|
-| **DrugBank approved** | ~2,700 | drugbank.com (free academic) | Repurposing candidates |
-| **ChEMBL drug-like subset** | ~200k after Lipinski + PAINS filter | ChEMBL 34 SQLite dump | Broader bioactive space |
-| **PHGDH positive controls** | ~10 | Literature (NCT-503, BI-4924, CBR-5884, WQ-2101, homoharringtonine, indole-carboxamides) | Sanity-check rankings |
-| **TamGen de novo** | ~4,000 (1,000/conformation × 4) | Generated this run | Novel chemistry |
+| **DrugBank approved** | ~2,700 | drugbank.com (academic, free) | Repurposing candidates |
+| **ChEMBL drug-like subset** | ~50k (capped) | ChEMBL 34, Lipinski + PAINS filtered | Bioactive space |
+| **PHGDH positive controls** | 7+ | Literature + RCSB CCD | Pose-recovery + ranking sanity (committed) |
+| **Known PHGDH-binder extended set** | ~30 | Literature SAR series | Round-0 baseline (Sect. above) |
+| **PKU drug subset** | ~15 | FDA-approved + investigational PKU therapeutics | Sub-branch B3 seeds |
 
-Canonical input format: `data/libraries/{set}.csv` with columns `id,smiles,source`.
-
----
-
-## Compute architecture (Cosmos / MI300A / ROCm)
-
-- **Login node** (`cosmos02`): conda env creation, repo cloning, structure prep (CPU-only Python work), result inspection. No GPU access.
-- **Compute nodes** (cluster partition): all model inference (Boltz-2, TamGen) via SLURM jobs.
-- **ROCm**: `/opt/rocm-6.3.0`, `module load rocm/6.3.0`. `PYTORCH_ROCM_ARCH=gfx942` already set.
-- **PyTorch ROCm wheels**: follow `evo2-rocm` pattern (`torch 2.5.1+rocm6.2`, `pytorch-triton-rocm 3.1.0`, `flash-attn 2.7.4` — all from PyPI ROCm index).
-- **Scratch**: `/ddn_scratch/l1joseph` (only mounted on compute nodes) — use for model weights, intermediate predictions, and large library files. Home directory holds code + final ranked CSVs only.
-- **SLURM log discipline** (per global CLAUDE.md): every job script sets `--job-name=<descriptive>`, `--output=$PROJECT_ROOT/logs/%x_%j.out`, `--error=$PROJECT_ROOT/logs/%x_%j.err`, with absolute paths.
+Canonical format: `data/libraries/{set}.csv` with columns `id,smiles,source[,notes]`.
 
 ---
 
-## Installation
+## Compute architecture (Cosmos / MI300A / ROCm 6.3)
 
-### Boltz-2 (`boltz-rocm` env)
+- **Login node** (`cosmos02`): conda env creation, repo cloning, structure prep, result inspection. No GPU.
+- **Compute nodes** (`cluster` partition, exclusive): GPU work via SLURM. Each node = 4× AMD Instinct MI300A APUs, 192 CPUs, 500 GB RAM.
+- **ROCm**: `module load rocm/6.3.0`. `PYTORCH_ROCM_ARCH=gfx942` already set.
+- **PyTorch ROCm wheels**: pip from `https://download.pytorch.org/whl/rocm6.2` (no conda channel hosts ROCm builds).
+- **Scratch**: **`/cosmos/vast/scratch/l1joseph`** (Vast Data, 675 TB, NFS). NOT `/ddn_scratch` (which doesn't exist despite `$SCRATCH` env var). Used for model weights, intermediate predictions, large library files.
+- **Home**: `/cosmos/nfs/home/l1joseph` for code + final ranked CSVs.
+- **SLURM log discipline**: every job script sets `--job-name=<descriptive>`, `--output=$PROJECT_ROOT/logs/%x_%j.out`, `--error=$PROJECT_ROOT/logs/%x_%j.err`. Chronological symlinks created at job start.
+
+**Observed throughput** (from smoke test #85046, 1 ligand, MI300A):
+- Structure prediction: ~27 sec
+- Affinity prediction: ~9 sec
+- Total per ligand: ~36 sec on 1 APU → ~9 sec effective with 4 APUs in parallel
+- **Library projections**: DrugBank (2.7k) ≈ 2 GPU-h; ChEMBL drug-like (50k) ≈ 30 GPU-h; full iterative loop (5 rounds × 20 seeds × 200 variants) ≈ 50 GPU-h.
+
+---
+
+## Installation (validated)
+
+### Boltz-2 → `boltz-rocm` env
 
 ```bash
 mamba create -y -n boltz-rocm python=3.11 -c conda-forge
 mamba activate boltz-rocm
-
-# PyTorch ROCm wheels (matches evo2-rocm working pattern)
-pip install torch==2.5.1+rocm6.2 torchvision==0.20.1+rocm6.2 torchaudio==2.5.1+rocm6.2 \
+pip install --no-cache-dir torch==2.5.1+rocm6.2 torchvision==0.20.1+rocm6.2 \
+    torchaudio==2.5.1+rocm6.2 \
     --index-url https://download.pytorch.org/whl/rocm6.2
-
-# Boltz from local clone, NO [cuda] extra (cuequivariance is NVIDIA-only)
-cd tools/boltz && pip install -e .
+cd tools/boltz && pip install -e .   # NO [cuda] extra
 ```
 
-Verify on a compute node: `torch.cuda.is_available()` returns True (PyTorch-ROCm reuses the `cuda` namespace), `torch.cuda.device_count() == 4` (MI300A APUs).
+**Critical runtime flag**: `--no_kernels` on every `boltz predict` call. Without it Boltz tries to import `cuequivariance_torch` (NVIDIA-only). With `--no_kernels`, Boltz falls through to its pure-PyTorch implementation which runs natively on ROCm. Smoke test #85046 confirmed end-to-end correctness with this flag.
 
-### TamGen (`tamgen-rocm` env)
-
-Patches required vs. upstream `setup_env.sh`:
+### TamGen → `tamgen-rocm` env
 
 ```bash
 mamba create -y -n tamgen-rocm python=3.9 -c conda-forge
 mamba activate tamgen-rocm
-
-# Replace: conda install pytorch==2.3.0 pytorch-cuda=12.1 -c pytorch -c nvidia
-# With: PyTorch ROCm wheel (pin to torch 2.3.x for fairseq-0.8.0 compatibility)
-pip install torch==2.3.0+rocm6.0 --index-url https://download.pytorch.org/whl/rocm6.0
-pip install torch_geometric scipy
-
-# Replace PyG CUDA wheel index with ROCm:
-pip install --no-index pyg_lib torch_scatter torch_sparse torch_cluster torch_spline_conv \
-    -f https://data.pyg.org/whl/torch-2.3.0+rocm6.0.html
-
-pip install rdkit==2024.03.1 tensorboardX einops ipykernel
-
-# Vendored fairseq-0.8.0 from repo. Custom CUDA ops (lightconv_cuda, dynamicconv_cuda)
-# will fail to build on ROCm — skip by setting NO_CUDA_EXT=1 or by editing setup.py
-# to drop the cuda_extensions list. The TamGen transformer LM path does NOT require
-# these ops at inference time (verify in smoke test).
-cd tools/TamGen && NO_CUDA_EXT=1 python -m pip install -e .[chem]
-
-pip uninstall -y numpy && pip install numpy==1.26.4 pandas
+mamba install -y -c conda-forge rdkit=2024.03.1 scipy einops tensorboardX ipykernel \
+    pandas numpy=1.26.4 networkx dm-tree requests biopython editdistance \
+    cffi regex tqdm sacrebleu
+pip install --no-cache-dir torch==2.5.1+rocm6.2 \
+    --index-url https://download.pytorch.org/whl/rocm6.2
+# PyG companions: NO ROCm wheels exist; use CPU wheels (ABI-compatible with our ROCm torch)
+pip install --no-cache-dir -f https://data.pyg.org/whl/torch-2.5.0+cpu.html \
+    torch_cluster torch_scatter torch_sparse pyg_lib torch_spline_conv torch_geometric
+pip install --no-cache-dir fy-common-ext
+cd tools/TamGen && pip install --no-deps -e .  # vendored fairseq-0.8.0
 ```
 
-Risk: fairseq-0.8.0's custom CUDA ops may have hard-coded `nvcc` invocations. If `setup.py` build_ext can't be bypassed cleanly, fork the build to skip the `cuda_extensions` block. TamGen inference itself uses standard PyTorch ops (transformer + cross-attention), so runtime should work.
+TamGen setup.py only builds a pure C++ libbleu extension — no CUDA ops to skip. Point-cloud k-NN ops (used in the pocket encoder) run on CPU; pocket sizes are small (~250 residues), negligible.
+
+### TamGen checkpoints (3.3 GB)
+
+```bash
+mkdir -p /cosmos/vast/scratch/l1joseph/tamgen_ckpts
+cd /cosmos/vast/scratch/l1joseph/tamgen_ckpts
+curl -L -O https://zenodo.org/records/13751391/files/checkpoints.zip
+curl -L -O https://zenodo.org/records/13751391/files/gpt_model.zip
+unzip checkpoints.zip && unzip gpt_model.zip
+# Symlink into TamGen/ for relative-path-expecting scripts
+ln -sf /cosmos/vast/scratch/l1joseph/tamgen_ckpts/checkpoints tools/TamGen/checkpoints
+ln -sf /cosmos/vast/scratch/l1joseph/tamgen_ckpts/gpt_model/checkpoint_best.pt \
+    tools/TamGen/gpt_model/checkpoint_best.pt
+```
 
 ---
 
 ## Execution phases
 
-Phases gate the next: each must pass success criteria before proceeding.
-
 | Phase | What | Compute | Pass criterion |
 |---|---|---|---|
-| **0. Setup** | Repos cloned, PDBs downloaded, conda envs built | Login node | Both envs report `torch.cuda.is_available()=True` in a SLURM smoke job |
-| **1. Smoke tests** | Boltz-2 minimal example + TamGen pretrained inference on a known input | 1× MI300A APU, ~30 min | Boltz produces valid output structure; TamGen emits parseable SMILES |
-| **2. Pose-recovery validation** | Boltz-2 dock BI-4924 into 6RJ6, NCT-cmpd-1 into 6PLF, homoharringtonine into 7EWH | 1× APU, ~1 h | ≥ 3/4 cases: predicted pose RMSD < 2 Å vs crystal |
-| **3. Target prep** | Strip ligands, repack side chains (PyRosetta `FastRelax` backbone-fixed OR OpenMM minimize), align 6PLF → 6CWA frame, derive allosteric pocket center | Login node, ~30 min | 4 conformations exported as cleaned PDB; pocket centers in JSON |
-| **4. Library staging** | Download DrugBank, filter ChEMBL drug-like, compile positive-control SMILES | Login node | One canonical CSV with ~3k DrugBank entries + 10 positive controls, all RDKit-valid |
-| **5. Library screen (Boltz-2)** | Score DrugBank + positive controls vs all 4 conformations | ~1–2 GPU-days on MI300A | Positive controls (BI-4924, NCT-503) in top-1% on the appropriate conformation |
-| **6. De novo (TamGen)** | Generate 1,000 SMILES per conformation, RDKit-filter | ~4× 30 min APU | ≥80% valid SMILES, scaffold diversity > 0.7 (Tanimoto) |
-| **7. De novo scoring (Boltz-2)** | Score TamGen output across all 4 conformations | ~12 GPU-h | Outputs ranked CSV |
-| **8. Consensus + reporting** | Merge rankings, consensus filter (top-10% in C1 ∩ C3), mechanism classification (C1 vs C2), top-50 candidates with predicted complexes | Login node | Ranked report `results/top_hits.{csv,sdf,pdb}` |
+| **0. Setup** ✅ | Repos cloned, PDBs downloaded, conda envs built, checkpoints fetched | Login | `torch.cuda.is_available()` True in compute job |
+| **1. Smoke tests** ✅ | Boltz-2 minimal example (`--no_kernels`); TamGen import + GPU verification | 1× APU, ~5 min | Both jobs exit 0; Boltz produces affinity JSON; TamGen pointcloud transformer imports |
+| **2. Pose-recovery validation** | Boltz-2 dock BI-4924 into 6RJ6, NCT-cmpd-1 into 6PLF, HHT into 7EWH, BI-cmpd-15 into 6RJ3 | 4× APU, ~1 h | ≥ 3/4 cases: predicted ligand RMSD < 2 Å vs crystal HETATM |
+| **3. Target prep refinement** | Side-chain repack with PyRosetta `FastRelax` (backbone fixed) on stripped PDBs | Login, ~30 min | 4 conformation PDBs exported, geometry sane |
+| **4. Druggability scoring** | Run FPocket on each conformation; compare pocket volumes, druggability score, hydrophobicity at the substrate-cleft vs allosteric pocket | Login, ~10 min | Druggability score per pocket; flag pockets with score < 0.6 |
+| **5. Library staging** | Download DrugBank approved, filter ChEMBL drug-like (50k cap), compile known-binder set + PKU drug set | Login | Single canonical CSV per set, all RDKit-valid |
+| **6. Round-0 baseline benchmark** | Score known-binder set (Round-0 seed set) with Boltz-2 across all 4 conformations | ~1 GPU-h | All compounds scored; affinity distribution recorded as baseline |
+| **7. Library virtual screen (Branch A)** | Score DrugBank + positive controls across all conformations | ~2–4 GPU-h | Positive controls in top-1% on appropriate conformation; if not, recalibrate |
+| **8. De novo TamGen (Branch B)** | Generate 1,000 SMILES per conformation, RDKit filter, score with Boltz-2 | ~12 GPU-h | ≥ 80% valid SMILES, scaffold diversity Tanimoto > 0.7, some hits > Round-0 baseline |
+| **9. Iterative scaffold-seeded loop (Branch C)** | Run B1 (NCT-503 family) + B2 (BI-4924 family) for up to 5 rounds; closed-loop generate→score→reseed | ~30–50 GPU-h | At least 1 lineage shows monotonic affinity improvement vs round 0 |
+| **10. PKU repurposing (optional Branch B3)** | Iterative loop seeded from PKU drugs; only if Phases 8–9 plateau | ~10 GPU-h | Identify whether PKU scaffolds can reach competitive affinity |
+| **11. Consensus + reporting** | Merge all branches, ensemble consensus filter, mechanism classification, top-50 + predicted complexes | Login | `results/top_hits.{csv,sdf,pdb}` with provenance per hit |
 
-Phases 5 and 6 can run in parallel; 7 depends on 6; 2, 5, 7 all depend on 1.
+Phases 2, 4, 5 can run in parallel. Phase 6 gates 7-9 (need baseline before scoring novels). Phase 9 is the most compute-intensive.
 
 ---
 
@@ -170,12 +247,29 @@ Phases 5 and 6 can run in parallel; 7 depends on 6; 2, 5, 7 all depend on 1.
 
 | Risk | Likelihood | Mitigation |
 |---|---|---|
-| fairseq-0.8.0 CUDA ops block ROCm install | High | Skip via `NO_CUDA_EXT=1` or fork setup.py; verify inference doesn't need them |
-| Boltz-2 weights gated / require HuggingFace auth | Medium | Pre-download via login-node `huggingface-cli`; cache to `$SCRATCH` |
-| Side-chain repack changes pocket geometry too much | Low | Run dual: with-repack and without-repack as additional sub-condition; compare top hits |
-| Boltz-2 affinity calibration unreliable on AMD | Low–medium | Pose-recovery validation (Phase 2) gates further trust; if RMSD bad, drop affinity, keep pose-fit + Vina rescore |
-| Compute budget overrun on full ChEMBL drug-like | Medium | Cap at 50k for first pass; expand only if positive controls behave |
-| MI300A flash-attn / triton-rocm kernel mismatch with Boltz's attention modules | Medium | Boltz's attention is standard SDPA; should fall through to PyTorch built-in. Confirm in smoke test. |
+| Boltz `--no_kernels` path slower than CUDA kernels | Medium | Acceptable — already measured at ~9 s/lig effective on MI300A; library + iterative timelines fit |
+| Boltz-2 affinity prediction off-scale for new chemistry | Medium | Phase 6 baseline calibrates the scale; relative rank against known binders is what matters |
+| Iterative loop overfits to Boltz's biases (Goodhart) | High | Use multi-conformation consensus + require ≥ 2-fold improvement margin to avoid noise-mining; sanity-check top hits with an orthogonal scorer (DiffDock + Vina) before any wet-lab handoff |
+| Pose-recovery RMSD > 2 Å | Medium | If failure, drop affinity-scale interpretation; use pose-fit + plddt as filter, rank by confidence; rescue with Vina on the same poses |
+| Allosteric pocket (C4) overlaps with NADH subsite | Confirmed (~5 Å apart in 6CWA frame) | Treat C1 and C4 as related rather than fully orthogonal sites; expect some convergence in hits |
+| TamGen scaffold-seeded generation produces low-novelty variants | Medium | Hard Tanimoto > 0.3 filter from parent; reject near-duplicates |
+| 3PG repack changes substrate-cleft geometry meaningfully | Low | Compare C1 (apo, repacked) and C3 (2G76 apo) — divergent rankings flag this |
+| Compute budget overrun on full iterative loop | Medium | Hard 5-round cap; cap variants/round/seed at 200; can shrink Branch B3 first |
+
+---
+
+## Citations
+
+| Ref | Citation | Used for |
+|---|---|---|
+| Park 2025 | Park *et al.*, *Nature* 2025 (PubMed 40273909) — PHGDH moonlighting / DBD activation / sporadic AD | Mechanism we are targeting |
+| Zhong (TBD) | Zhong *et al.*, *Cell*, exact ref TBD — 3PG accumulation not pathogenic | Rules out 3PG-mimetic strategic axis |
+| Pacold 2016 | Pacold *et al.*, *Nat Chem Biol*, 2016 — NCT-503 discovery + biochemical characterization | NCT-503 scaffold for Branch B1 |
+| Spinelli 2021 | Spinelli *et al.* — BI-4924 series (Boehringer-Ingelheim) | BI-4924 scaffold for Branch B2 |
+| Wohlwend 2024 | Wohlwend *et al.* — Boltz / Boltz-2 | Affinity scoring engine |
+| Tu 2024 | Tu *et al.*, *Briefings in Bioinformatics*, 2024 (PubMed 39472567) — TamGen | De novo + scaffold-seeded generation |
+| Mullarky 2016 | Mullarky *et al.* — CBR-5884 (covalent PHGDH inhibitor at Cys234) | Positive control + Cys234 site reference |
+| Rohle 2013 | Rohle *et al.* — PHGDH and serine biosynthesis in cancer | Cancer-context PHGDH literature |
 
 ---
 
@@ -183,44 +277,62 @@ Phases 5 and 6 can run in parallel; 7 depends on 6; 2, 5, 7 all depend on 1.
 
 ```
 Alzheimers_Drug_Discovery/
-├── PLAN.md                      # this file
-├── 6CWA_chainA_clean.pdb        # original cleaned input (kept)
+├── PLAN.md                           # this file
+├── 6CWA_chainA_clean.pdb             # original cleaned input (kept)
 ├── 6CWA.cif
-├── pocket_center.json           # substrate cleft center, 6CWA frame
-├── pocket_center_allosteric.json  # NCT-503 site center, derived
+├── pocket_center.json                # substrate cleft / NADH centroid (6CWA frame)
+├── pocket_center_allosteric.json     # NCT-503 site center (derived from 6PLF)
 ├── tamgen_input.csv
-├── tools/
-│   ├── boltz/                   # cloned, installed in boltz-rocm
-│   └── TamGen/                  # cloned, installed in tamgen-rocm
+├── tools/                            # gitignored
+│   ├── boltz/                        # cloned, installed in boltz-rocm env
+│   └── TamGen/                       # cloned + checkpoints symlinked from scratch
 ├── data/
-│   ├── structures/              # 7 PHGDH CIFs (downloaded)
-│   ├── targets/                 # prepared PDBs per conformation
-│   │   ├── phgdh_6CWA_apo.pdb
-│   │   ├── phgdh_6CWA_3pg.pdb
-│   │   ├── phgdh_2G76_apo.pdb
-│   │   └── pocket_centers.json
+│   ├── structures/                   # 7 PHGDH CIFs (gitignored)
+│   ├── targets/                      # prepared PDBs per conformation (gitignored, regen via prep_targets.py)
+│   │   ├── phgdh_6CWA_apo.pdb        # C1
+│   │   ├── phgdh_6CWA_3pg.pdb        # C2
+│   │   ├── phgdh_6CWA_3pg_nadh.pdb   # mechanism rescore
+│   │   └── phgdh_2G76_apo.pdb        # C3
 │   └── libraries/
+│       ├── phgdh_positive_controls.csv  # committed
+│       ├── known_phgdh_binders.csv      # Round-0 baseline seed set
 │       ├── drugbank_approved.csv
 │       ├── chembl_druglike.csv
-│       └── phgdh_positive_controls.csv
-├── slurm/                       # SLURM job scripts
-│   ├── boltz_smoke.sh
-│   ├── tamgen_smoke.sh
-│   ├── pose_recovery.sh
-│   ├── library_screen.sh
-│   └── tamgen_generate.sh
-├── logs/                        # SLURM logs (gitignored except .gitkeep)
+│       └── pku_drugs.csv
+├── scripts/
+│   ├── prep_targets.py
+│   ├── build_boltz_yamls.py
+│   ├── aggregate_boltz.py
+│   ├── score_baseline.py             # Phase 6
+│   ├── iterative_loop.py             # Phase 9 driver
+│   ├── druggability_fpocket.py       # Phase 4
+│   └── repack_pyrosetta.py           # Phase 3
+├── slurm/
+│   ├── boltz_smoke.sh                # ✅ passing
+│   ├── tamgen_smoke.sh               # ✅ passing
+│   ├── boltz_screen.sh               # generic Boltz batch job
+│   ├── tamgen_generate.sh
+│   ├── iterative_round.sh
+│   └── pose_recovery.sh
+├── logs/                             # SLURM logs (gitignored except .gitkeep)
 └── results/
+    ├── smoke/                        # ✅ smoke outputs
     ├── pose_recovery.csv
+    ├── round_0_baseline.csv
     ├── library_screen_<conf>.csv
-    ├── tamgen_<conf>.csv
-    └── top_hits.{csv,sdf,pdb}   # final consensus output
+    ├── iterative_loop/
+    │   ├── round_{N}_ranked.csv
+    │   ├── affinity_trajectory.png
+    │   └── final_top.sdf
+    └── top_hits.{csv,sdf,pdb}        # final consensus output
 ```
 
 ---
 
 ## Open questions deferred (not blocking execution)
 
-1. **Allosteric site definition**: NCT-503 isn't directly co-crystallized in our PDB set; we use the related 6PLF compound 1 as proxy. If the allosteric branch produces no good hits, revisit by finding a true NCT-503 co-crystal or running mutation-based pocket prediction.
-2. **Top-hit MD refinement**: After consensus ranking, the top-20 may warrant short OpenMM MD + MM-GBSA rescoring. Not in initial scope; queue for follow-up if results are promising.
-3. **Wet-lab validation handoff**: Out of scope for this pipeline. Output format (SDF with predicted poses + affinity) is set up to be directly orderable from Enamine / synthesizable.
+1. **Exact Zhong *et al.* Cell citation** — fill in once user provides DOI/PubMed.
+2. **HHT (homoharringtonine) site location** — 7EWH at 2.99 Å has HHT bound. Need to verify it binds the same substrate cleft (likely) or a separate site. If a distinct site, add as C5.
+3. **Top-hit MD refinement + MM-GBSA rescore** — for the final top-20 from Phase 11, run short OpenMM MD + MM-GBSA. Out of initial scope; queue if results are promising.
+4. **Wet-lab validation handoff** — out of scope. Output format (SDF with predicted poses + affinity) is set up to be directly orderable from Enamine / synthesizable.
+5. **Mutational analysis of PHGDH target** — Park 2025 likely identified specific PHGDH residue mutations that block DBD activation. Cross-referencing those residues with our top-hit binding poses would help selectivity arguments. Deferred until top hits are in hand.
