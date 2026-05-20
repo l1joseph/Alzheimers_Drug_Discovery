@@ -1,0 +1,11 @@
+id,name,smiles,source_pdb,source,notes
+K5K,BI-4924,Cc1cc2c(cc(n2C)C(=O)N[C@H](CO)c3ccc(cc3)S(=O)(=O)CC(=O)O)c(c1Cl)Cl,6RJ6,Boehringer-Ingelheim,NAD-competitive nM-range PHGDH inhibitor; co-crystal pose available
+K58,BI-cmpd-15,C[C@H](c1ccc(cc1)C(=O)O)NC(=O)c2cc(nn2C)c3ccccc3,6RJ3,Boehringer-Ingelheim,BI series highest-res PHGDH co-crystal (1.42 A)
+ONV,NCT-cmpd-1,C1[C@H](OC(=O)N1)COC2=C(C=C3C=C(NC3=C2)C(=O)N[C@H](CO)C4=CC=C(C=C4)C(=O)O)Cl,6PLF,Pacold-2016,NCT-series indole-carboxamide allosteric inhibitor
+ONS,NCT-cmpd-15,Cn1c(cc2c(Cl)c(Cl)ccc12)C(=O)NC3(COC3)c4ccc(cc4)[C@H](C(O)=O)c5cccnc5,6PLG,Pacold-2016,NCT-series allosteric inhibitor with pyridyl group
+HMT,Homoharringtonine,COC(=O)C[C@](O)(CCCC(C)(C)O)C(=O)O[C@H]1[C@H]2c3cc4OCOc4cc3CCN5CCC[C@]25C=C1OC,7EWH,natural-product,Cephalotaxus alkaloid; PHGDH binder identified by virtual screening
+NCT503,NCT-503,CC1=CC(=NC(=C1)NC(=S)N2CCN(CC2)CC3=CC=C(C=C3)C(F)(F)F)C,,Pacold-2016-NatChemBiol,Allosteric PHGDH inhibitor; IC50=2.5 uM; the compound used in Park 2025 Alzheimer's study
+CBR5884,CBR-5884,CCOC(=O)C1=C(C(=C(S1)NC(=O)C2=CC=CO2)SC#N)C,,Mullarky-2016-PNAS,Covalent PHGDH inhibitor targeting Cys234
+WQ2101,WQ-2101,C1=CC(=C(C=C1[N+](=O)[O-])/C=N\NC(=O)C2=C(C=C(C=C2)O)O)O,,literature,Acylhydrazone PHGDH inhibitor
+3PG,3-phosphoglycerate,OP(=O)(O)OCC(O)C(=O)O,6CWA,endogenous-substrate,Native substrate
+NAI,NADH,NC(=O)C1=CN(C=CC1)[C@@H]2O[C@H](CO[P@@](O)(=O)O[P@](O)(=O)OC[C@H]3O[C@H]([C@H](O)[C@@H]3O)n4cnc5c(N)ncnc45)[C@@H](O)[C@H]2O,6CWA,endogenous-cofactor,Native cofactor — primary baseline; designed binders should out-rank this for NADH-competition

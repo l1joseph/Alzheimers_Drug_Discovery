@@ -48,6 +48,7 @@ cd "$PROJECT/tools/boltz"
 # Use the example affinity.yaml from the repo. Outputs to scratch.
 boltz predict examples/affinity.yaml \
     --use_msa_server \
+    --no_kernels \
     --cache "$BOLTZ_CACHE" \
     --out_dir "$WORK_OUT" \
     --output_format mmcif \

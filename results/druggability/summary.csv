@@ -1,0 +1,7 @@
+target_label,pdb,state,pocket_1_score,pocket_1_druggability,pocket_1_volume,pocket_2_score,pocket_2_druggability,interpretation
+6CWA_apo (C1),6CWA,holo-stripped (NADH + 3PG removed),0.146,0.002,252.6,0.069,0.002,Pocket collapsed; side-chain repack needed for usable target
+6CWA_3pg (C2),6CWA,3PG retained / NADH stripped,0.307,0.119,1146.3,0.146,0.002,3PG props open the cleft; conformation is preserved
+2G76_apo (C3),2G76,D-malate stripped,0.080,0.026,383.6,0.058,0.000,Independent apo; slightly better than 6CWA apo
+6CWA_holo (ref),6CWA,native NADH + 3PG bound,0.844,0.201,—,0.589,0.118,Reference holo druggability
+6PLF_holo (ref),6PLF,native NCT-series cmpd 1 bound,0.500,0.737,—,0.365,0.566,Inhibitor-stabilized allosteric pocket — highly druggable
+6RJ6_holo (ref),6RJ6,native BI-4924 bound,0.585,0.860,—,0.354,0.091,Inhibitor-stabilized substrate-cleft — highest druggability

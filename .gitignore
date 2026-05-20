@@ -5,9 +5,18 @@ logs/*
 # heavy artifacts (raw + derived data — regenerate via scripts/prep_targets.py)
 data/structures/*.cif
 data/targets/*.pdb
+data/msa/
+data/msa_test/
+data/msa_test2/
+data/round0_yamls/
+data/tamgen_round1_yamls/
+data/pose_recovery_inputs/
 results/predictions/
 results/runs/
-results/smoke/
+results/smoke/*.cif
+results/smoke/*.npz
+results/druggability/*_out/
+.claude/
 tools/
 
 # python

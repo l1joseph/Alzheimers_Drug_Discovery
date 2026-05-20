@@ -1,0 +1,37 @@
+[
+  {
+    "pdb": "6RJ6",
+    "ligand_resname": "K5K",
+    "name": "BI-4924",
+    "smiles": "Cc1cc2c(cc(n2C)C(=O)N[C@H](CO)c3ccc(cc3)S(=O)(=O)CC(=O)O)c(c1Cl)Cl",
+    "n_residues": 204
+  },
+  {
+    "pdb": "6PLF",
+    "ligand_resname": "ONV",
+    "name": "NCT-series-cmpd-1",
+    "smiles": "C1[C@H](OC(=O)N1)COC2=C(C=C3C=C(NC3=C2)C(=O)N[C@H](CO)C4=CC=C(C=C4)C(=O)O)Cl",
+    "n_residues": 305
+  },
+  {
+    "pdb": "6PLG",
+    "ligand_resname": "ONS",
+    "name": "NCT-series-cmpd-15",
+    "smiles": "Cn1c(cc2c(Cl)c(Cl)ccc12)C(=O)NC3(COC3)c4ccc(cc4)[C@H](C(O)=O)c5cccnc5",
+    "n_residues": 303
+  },
+  {
+    "pdb": "6RJ3",
+    "ligand_resname": "K58",
+    "name": "BI-cmpd-15",
+    "smiles": "C[C@H](c1ccc(cc1)C(=O)O)NC(=O)c2cc(nn2C)c3ccccc3",
+    "n_residues": 297
+  },
+  {
+    "pdb": "7EWH",
+    "ligand_resname": "HMT",
+    "name": "Homoharringtonine",
+    "smiles": "COC(=O)C[C@](O)(CCCC(C)(C)O)C(=O)O[C@H]1[C@H]2c3cc4OCOc4cc3CCN5CCC[C@]25C=C1OC",
+    "n_residues": 302
+  }
+]
