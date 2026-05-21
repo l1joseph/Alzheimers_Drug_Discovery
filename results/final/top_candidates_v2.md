@@ -39,14 +39,14 @@ Bands: 1 = validated (AD repurposing track), 2 = novel scaffold-seeded, 3 = ChEM
 
 | # | id | source | Boltz aff | Vina | sel_idx | sel_interp | MW | logP | Tani→known | AD relevance |
 |---|---|---|---|---|---|---|---|---|---|---|
-| 19 | `reinvent_step010_COc1cc(N` | reinvent_rl | 0.7143 |  |  | not screened | 461.5 | 2.41 | 0.29 | novel composition (REINVENT RL with composite reward) |
-| 20 | `reinvent_step028_CC1(C)CC` | reinvent_rl | 0.7092 |  |  | not screened | 362.4 | 3.68 | 0.20 | novel composition (REINVENT RL with composite reward) |
-| 21 | `reinvent_step030_CC1(S(=O` | reinvent_rl | 0.7030 |  |  | not screened | 531.0 | 3.91 | 0.22 | novel composition (REINVENT RL with composite reward) |
-| 22 | `reinvent_step033_N#CCn1cn` | reinvent_rl | 0.6961 |  |  | not screened | 328.3 | 2.91 | 0.21 | novel composition (REINVENT RL with composite reward) |
-| 23 | `reinvent_step036_CCc1cccc` | reinvent_rl | 0.6942 |  |  | not screened | 329.4 | 2.41 | 0.20 | novel composition (REINVENT RL with composite reward) |
-| 24 | `reinvent_step033_O=C(Nc1c` | reinvent_rl | 0.6932 |  |  | not screened | 354.2 | 3.21 | 0.15 | novel composition (REINVENT RL with composite reward) |
-| 25 | `reinvent_step014_COc1ccc(` | reinvent_rl | 0.6895 |  |  | not screened | 311.4 | 3.75 | 0.16 | novel composition (REINVENT RL with composite reward) |
-| 26 | `reinvent_step017_COc1ccc(` | reinvent_rl | 0.6883 |  |  | not screened | 328.3 | 3.19 | 0.12 | novel composition (REINVENT RL with composite reward) |
-| 27 | `reinvent_step006_COc1c(Br` | reinvent_rl | 0.6860 |  |  | not screened | 324.1 | 3.85 | 0.16 | novel composition (REINVENT RL with composite reward) |
-| 28 | `reinvent_step034_O=C1CN(C` | reinvent_rl | 0.6843 |  |  | not screened | 459.9 | 2.71 | 0.13 | novel composition (REINVENT RL with composite reward) |
+| 19 | `reinvent_step041_COc1cncc` | reinvent_rl | 0.7250 |  |  | not screened | 326.2 | 2.22 | 0.11 | novel composition (REINVENT RL with composite reward) |
+| 20 | `reinvent_step010_COc1cc(N` | reinvent_rl | 0.7143 |  |  | not screened | 461.5 | 2.41 | 0.29 | novel composition (REINVENT RL with composite reward) |
+| 21 | `reinvent_step028_CC1(C)CC` | reinvent_rl | 0.7092 |  |  | not screened | 362.4 | 3.68 | 0.20 | novel composition (REINVENT RL with composite reward) |
+| 22 | `reinvent_step051_OCCN=c1c` | reinvent_rl | 0.7048 |  |  | not screened | 334.3 | 2.54 | 0.15 | novel composition (REINVENT RL with composite reward) |
+| 23 | `reinvent_step030_CC1(S(=O` | reinvent_rl | 0.7030 |  |  | not screened | 531.0 | 3.91 | 0.22 | novel composition (REINVENT RL with composite reward) |
+| 24 | `reinvent_step041_CCc1[nH]` | reinvent_rl | 0.7013 |  |  | not screened | 330.4 | 3.07 | 0.12 | novel composition (REINVENT RL with composite reward) |
+| 25 | `reinvent_step040_O=C(Nc1c` | reinvent_rl | 0.7011 |  |  | not screened | 310.3 | 3.51 | 0.14 | novel composition (REINVENT RL with composite reward) |
+| 26 | `reinvent_step046_COc1cc2[` | reinvent_rl | 0.6998 |  |  | not screened | 305.0 | 3.7 | 0.11 | novel composition (REINVENT RL with composite reward) |
+| 27 | `reinvent_step033_N#CCn1cn` | reinvent_rl | 0.6961 |  |  | not screened | 328.3 | 2.91 | 0.21 | novel composition (REINVENT RL with composite reward) |
+| 28 | `reinvent_step036_CCc1cccc` | reinvent_rl | 0.6942 |  |  | not screened | 329.4 | 2.41 | 0.20 | novel composition (REINVENT RL with composite reward) |
 
