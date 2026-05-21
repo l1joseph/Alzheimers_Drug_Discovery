@@ -198,17 +198,29 @@ Tanimoto similarity (Morgan radius-2, 2048-bit) to the nearest of 10 validated P
 
 **Two distinct tracks, prioritized by friction-to-experiment.**
 
-### Track 1: Untested AD repurposing candidates (lowest friction)
+### Track 1: Untested AD repurposing candidates (lowest friction) — and ONS/ONV may actually *beat* NCT-503
 
-For an experimental group with access to the Park 2025 fluorescence-polarization DBD-DNA assay, the **fastest informative experiment** is to test ONS, ONV, K5K, K58 alongside NCT-503 as a positive control. These compounds are:
-- Available (Boehringer's K5K can be sourced via medicinal-chemistry suppliers; the NCT series via Tocris/MedChemExpress)
-- Characterized (published IC50, ADME, in some cases in-vivo PK)
-- Mechanistically motivated for the DBD function (see compound zoo)
+For an experimental group with access to the Park 2025 fluorescence-polarization DBD-DNA assay, the **fastest informative experiment** is to test ONS, ONV, K5K, K58 alongside NCT-503 as a positive control.
+
+The sharper version of this recommendation: **ONS (NCT-cmpd-15) and ONV (NCT-cmpd-1) are not just siblings of NCT-503 — they are its *successor compounds*** from the same Pacold 2016 paper, designed by the same group to be more potent and more drug-like than the original NCT-503 hit. They bind the *same* allosteric pocket by the *same* mechanism that gives NCT-503 its AD activity.
+
+Our pipeline rankings reflect this directly:
+- **ONS: Boltz −1.82, Vina −10.42** kcal/mol — strongest binder in the entire screen
+- **ONV: Boltz −1.02** — top-10
+- **NCT-503: not in our top-50** (i.e., worse than −0.4 Boltz)
+
+If Boltz's affinity ranking is meaningful (and the orthogonal Vina rescore says it is), the natural implication is: **the AD field has been using NCT-503 as the canonical PHGDH-DBD inhibitor because it was the historical first hit, but ONS / ONV may be the actually-better AD compounds that nobody has tested.** That hypothesis is testable in days, not months.
+
+These compounds are:
+- **Available** — Boehringer's K5K can be sourced via med-chem suppliers; the NCT series via Tocris / MedChemExpress
+- **Characterized** — published IC50, ADME data, in some cases in-vivo PK in mice (the cancer literature)
+- **Mechanistically motivated** for the DBD function (see compound zoo)
 - **Free of the design-prediction uncertainty** that affects our novel hits — these are real, well-known molecules
 
 **Expected outcome distribution:**
-- Best case: 2-4 of them show DBD inhibition comparable to or better than NCT-503 → immediate repurposing path, no medicinal chemistry needed
-- Worst case: none of them affect DBD function despite mechanism-of-action precedent → meaningful negative result, narrows the field and re-validates NCT-503 as uniquely positioned
+- Best case: 2-4 of them show DBD inhibition *better than* NCT-503 → immediate next-best-in-class repurposing candidate, with characterized mouse PK already in hand
+- Middle case: all 4 work comparably to NCT-503 → useful redundancy / backup compounds with different ADME profiles
+- Worst case: none affect DBD function despite mechanism-of-action precedent → meaningful negative result that narrows the field and re-validates NCT-503 as uniquely positioned
 - Either way: ~one week of bench time, definitive answer
 
 ### Track 2: Novel composition-of-matter (B1 series)
