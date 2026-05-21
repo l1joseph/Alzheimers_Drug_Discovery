@@ -1,0 +1,12 @@
+id,smiles
+NCT503,CC1=CC(=NC(=C1)NC(=S)N2CCN(CC2)CC3=CC=C(C=C3)C(F)(F)F)C
+ONS,Cn1c(cc2c(Cl)c(Cl)ccc12)C(=O)NC3(COC3)c4ccc(cc4)[C@H](C(O)=O)c5cccnc5
+K5K,Cc1cc2c(cc(n2C)C(=O)N[C@H](CO)c3ccc(cc3)S(=O)(=O)CC(=O)O)c(c1Cl)Cl
+K58,C[C@H](c1ccc(cc1)C(=O)O)NC(=O)c2cc(nn2C)c3ccccc3
+ONV,C1[C@H](OC(=O)N1)COC2=C(C=C3C=C(NC3=C2)C(=O)N[C@H](CO)C4=CC=C(C=C4)C(=O)O)Cl
+b1_005,CC(C)(C)c1nc2c([nH]1)c1c(c3cc(F)ccc32)C(=O)N=CC1
+b1_058,CN1CCN(c2ccc(C3C=NC4=Nc5cnc(C(=O)O)c(C(F)(F)F)c5C4=C3)cc2)C(=O)C1
+b1_051,CC(C)(C)c1nc2c([nH]1)c1c(c3cc(F)ccc32)C(=O)N=NC1
+b1_112,CN1CCN(c2ccc(C3C=NC4=Nc5cnc(C(=O)O)c(C(F)(F)F)c5C4=C3)c(Cl)c2)CC1
+r2b2_107,CC(C)[C@H](NS(=O)(=O)c1ccc(-c2ccc(CSc3nc(O)c4c(n3)CC=C4)cc2)cc1)C(=O)O
+r2b2_285,CC(C)[C@H](NS(=O)(=O)c1ccc(-c2ccc(CSc3nc(O)c4c(n3)CCC4)cc2)cc1)C(=O)O
