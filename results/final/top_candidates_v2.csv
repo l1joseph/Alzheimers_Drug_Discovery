@@ -1,0 +1,29 @@
+rank,band,id,label,source,boltz_aff_C1,vina_kcal,selectivity_index,selectivity_interpretation,smiles,MW,logP,Tanimoto_to_known,ad_relevance
+1,1,K58,BI-cmpd-15,validated_known,-1.0,,-2.3647472858428955,STRONG selectivity for PHGDH,,,,1.00,AD repurposing candidate (mechanism precedent)
+2,1,K5K,BI-4924,validated_known,-1.79,-9.19,-1.6233436995744706,STRONG selectivity for PHGDH,,,,1.00,AD repurposing candidate (mechanism precedent)
+3,1,NCT503,NCT-503,validated_known,-0.3,,-1.4637468338012696,STRONG selectivity for PHGDH,,,,1.00,AD-tested
+4,1,ONV,NCT-cmpd-1,validated_known,-1.02,-8.00,-1.1311651957035065,STRONG selectivity for PHGDH,,,,1.00,AD repurposing candidate (mechanism precedent)
+5,1,ONS,NCT-cmpd-15,validated_known,-1.82,-10.58,-0.7634875249862672,modest selectivity for PHGDH,,,,1.00,AD repurposing candidate (mechanism precedent)
+6,2,b1_058,b1_058,tamgen_b1,-0.65,-7.91,-0.046248459815979026,weak preference for PHGDH,CN1CCN(c2ccc(C3C=NC4=Nc5cnc(C(=O)O)c(C(F)(F)F)c5C4=C3)cc2)C(=O)C1,469.4,3.37,0.14,novel composition (NCT-503 scaffold lineage)
+7,2,b1_051,b1_051,tamgen_b1,-0.48,-7.21,-0.406112562417984,modest selectivity for PHGDH,CC(C)(C)c1nc2c([nH]1)c1c(c3cc(F)ccc32)C(=O)N=NC1,310.3,4.26,0.12,novel composition (NCT-503 scaffold lineage)
+8,2,b1_005,b1_005,tamgen_b1,-0.39,-8.15,-0.3019030758738518,modest selectivity for PHGDH,CC(C)(C)c1nc2c([nH]1)c1c(c3cc(F)ccc32)C(=O)N=CC1,309.3,3.92,0.12,novel composition (NCT-503 scaffold lineage)
+9,3,CHEMBL1433971,CHEMBL1433971,chembl_repurposing,-0.82,,,not screened (off-target panel pending),,,,,untested; mechanism-of-action precedent inferred from original-target
+10,3,CHEMBL1276764,CHEMBL1276764,chembl_repurposing,-0.73,,,not screened (off-target panel pending),,,,,untested; mechanism-of-action precedent inferred from original-target
+11,3,CHEMBL392031,CHEMBL392031,chembl_repurposing,-0.70,,,not screened (off-target panel pending),,,,,untested; mechanism-of-action precedent inferred from original-target
+12,3,CHEMBL1939761,CHEMBL1939761,chembl_repurposing,-0.64,,,not screened (off-target panel pending),,,,,untested; mechanism-of-action precedent inferred from original-target
+13,3,CHEMBL1801281,CHEMBL1801281,chembl_repurposing,-0.60,,,not screened (off-target panel pending),,,,,untested; mechanism-of-action precedent inferred from original-target
+14,3,CHEMBL3663284,CHEMBL3663284,chembl_repurposing,-0.53,,,not screened (off-target panel pending),,,,,untested; mechanism-of-action precedent inferred from original-target
+15,3,CHEMBL3937129,CHEMBL3937129,chembl_repurposing,-0.47,,,not screened (off-target panel pending),,,,,untested; mechanism-of-action precedent inferred from original-target
+16,3,CHEMBL1852304,CHEMBL1852304,chembl_repurposing,-0.44,,,not screened (off-target panel pending),,,,,untested; mechanism-of-action precedent inferred from original-target
+17,3,CHEMBL1084018,CHEMBL1084018,chembl_repurposing,-0.44,,,not screened (off-target panel pending),,,,,untested; mechanism-of-action precedent inferred from original-target
+18,3,CHEMBL3962595,CHEMBL3962595,chembl_repurposing,-0.42,,,not screened (off-target panel pending),,,,,untested; mechanism-of-action precedent inferred from original-target
+19,4,reinvent_step010_COc1cc(N,reinvent_step010_COc1cc(N,reinvent_rl,0.7143,,,not screened,COc1cc(N2CCC(CNC(=O)c3cc(-c4ccc(C#N)cc4)nn3C)CC2)nc(OC)n1,461.5,2.41,0.29,novel composition (REINVENT RL with composite reward)
+20,4,reinvent_step028_CC1(C)CC,reinvent_step028_CC1(C)CC,reinvent_rl,0.7092,,,not screened,CC1(C)CC2C(C#N)=CCC1(O)C2NC(=O)c1cccc(-c2ccco2)c1,362.4,3.68,0.20,novel composition (REINVENT RL with composite reward)
+21,4,reinvent_step030_CC1(S(=O,reinvent_step030_CC1(S(=O,reinvent_rl,0.7030,,,not screened,CC1(S(=O)(=O)NCC(O)CC(CC(=O)O)c2cccc(Cl)c2)CCN(c2ccc(F)c(F)c2)CC1,531.0,3.91,0.22,novel composition (REINVENT RL with composite reward)
+22,4,reinvent_step033_N#CCn1cn,reinvent_step033_N#CCn1cn,reinvent_rl,0.6961,,,not screened,N#CCn1cnc2c(-c3cccc(C(F)(F)F)c3)nc(C#N)nc21,328.3,2.91,0.21,novel composition (REINVENT RL with composite reward)
+23,4,reinvent_step036_CCc1cccc,reinvent_step036_CCc1cccc,reinvent_rl,0.6942,,,not screened,CCc1cccc2cc3c(N)c(C(=O)NCC(=O)O)sc3nc12,329.4,2.41,0.20,novel composition (REINVENT RL with composite reward)
+24,4,reinvent_step033_O=C(Nc1c,reinvent_step033_O=C(Nc1c,reinvent_rl,0.6932,,,not screened,O=C(Nc1ccccc1F)c1cccc(Br)c1OCCO,354.2,3.21,0.15,novel composition (REINVENT RL with composite reward)
+25,4,reinvent_step014_COc1ccc(,reinvent_step014_COc1ccc(,reinvent_rl,0.6895,,,not screened,COc1ccc(C)cc1NC(=O)c1cc2c(cc1OC)CCC2,311.4,3.75,0.16,novel composition (REINVENT RL with composite reward)
+26,4,reinvent_step017_COc1ccc(,reinvent_step017_COc1ccc(,reinvent_rl,0.6883,,,not screened,COc1ccc(-c2oc3cccc(O)c3c(=O)c2OC)cc1OC,328.3,3.19,0.12,novel composition (REINVENT RL with composite reward)
+27,4,reinvent_step006_COc1c(Br,reinvent_step006_COc1c(Br,reinvent_rl,0.6860,,,not screened,COc1c(Br)cccc1C(=O)Nc1cccc(F)c1,324.1,3.85,0.16,novel composition (REINVENT RL with composite reward)
+28,4,reinvent_step034_O=C1CN(C,reinvent_step034_O=C1CN(C,reinvent_rl,0.6843,,,not screened,O=C1CN(C(=O)C2CCc3c(sc4nc[nH]c(=Nc5ccc(F)c(Cl)c5)c34)C2)CCN1,459.9,2.71,0.13,novel composition (REINVENT RL with composite reward)
