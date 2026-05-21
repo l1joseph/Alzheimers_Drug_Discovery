@@ -144,7 +144,9 @@ A 51-step REINVENT RL run with Boltz-2 as the inner-loop reward oracle (composit
 
 Honorable mention: the step-41 hit (pyrazolopyrimidone, MW 326, Tani 0.11) remains the most novel-by-chemistry compound; worth synthesizing alongside step-59 to test two distinct scaffold ideas.
 
-**Honest framing**: REINVENT did learn slowly, but the Boltz affinity ceiling (~−0.8 logKd for novel chemistry) was the bottleneck. The agent diversified chemistry but couldn't break through to nM-range affinity within the 51-step budget. With longer training and tighter selectivity-aware reward, this could improve.
+**Honest framing**: REINVENT did learn slowly, but the Boltz affinity ceiling (~−0.8 logKd for novel chemistry) was the bottleneck. The agent diversified chemistry but couldn't break through to nM-range affinity within the budget. With longer training and tighter selectivity-aware reward, this could improve.
+
+**Decision: not continuing RL past stage 1.** Block D's per-step max-reward trajectory was flat across the run (first-third mean 0.66 ≈ middle-third 0.67 ≈ last-third 0.66) — i.e. the agent diversified chemistry but didn't actually converge to higher reward. The one peak at 0.752 (step 59) wasn't matched in 30+ subsequent steps, suggesting it was a lucky draw from the prior rather than learned policy improvement. The cluster budget freed by stopping RL is being redirected to two higher-value validation passes: (a) Block F multi-conformation robustness across 4 PHGDH backbones, (b) kinase counter-screen against GRK-5/GRK-2/MK2/PDE10A to address the pharmacophore-promiscuity flag from the ChEMBL screen. Both directly strengthen confidence in the existing top candidates; another 250 RL steps mostly produced redundant chemistry around the same plateau.
 
 ---
 
