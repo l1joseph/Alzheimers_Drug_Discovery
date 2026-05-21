@@ -4,7 +4,7 @@
 #SBATCH --error=/cosmos/nfs/home/l1joseph/Alzheimers_Drug_Discovery/logs/%x_%j.err
 #SBATCH --partition=cluster
 #SBATCH --nodes=1
-#SBATCH --time=07:00:00
+#SBATCH --time=24:00:00
 #
 # REINVENT4 staged-learning RL run with Boltz-2 composite-reward scoring.
 # This sbatch reserves only 1 node for REINVENT itself (it's CPU-bound on the
