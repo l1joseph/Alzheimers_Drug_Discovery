@@ -1,21 +1,20 @@
-# REINVENT4 staged-learning config for PHGDH AD-track lead generation
-#
-# Uses our Boltz-2 composite-reward scorer (scripts/boltz_reward.py) as the
-# primary ExternalProcess scoring component. Goal: 100 steps of de novo
-# generation with closed-loop Boltz feedback, batch_size=64.
+# REINVENT4 continuation config for PHGDH AD-track RL.
+# Resumes from the stage-1 checkpoint written by the original run.
+# Submit AFTER the original Block D job completes its 100-step stage 1.
 
 run_type = "staged_learning"
 device = "cuda:0"
-tb_logdir = "/cosmos/vast/scratch/l1joseph/reinvent_rl/tb_logs"
-json_out_config = "/cosmos/vast/scratch/l1joseph/reinvent_rl/_staged_learning.json"
+tb_logdir = "/cosmos/vast/scratch/l1joseph/reinvent_rl/tb_logs_continue"
+json_out_config = "/cosmos/vast/scratch/l1joseph/reinvent_rl/_staged_learning_continue.json"
 
 [parameters]
-summary_csv_prefix = "/cosmos/vast/scratch/l1joseph/reinvent_rl/staged_learning"
-use_checkpoint = false
+summary_csv_prefix = "/cosmos/vast/scratch/l1joseph/reinvent_rl/staged_learning_continue"
+use_checkpoint = true                    # load diversity-filter memory too
 purge_memories = false
 
 prior_file = "tools/REINVENT4/priors/reinvent.prior"
-agent_file = "tools/REINVENT4/priors/reinvent.prior"
+# agent_file points at the chkpt from the original run, not the de novo prior
+agent_file = "/cosmos/vast/scratch/l1joseph/reinvent_rl/stage1.chkpt"
 
 batch_size = 64
 unique_sequences = true
@@ -35,11 +34,11 @@ minsimilarity = 0.4
 penalty_multiplier = 0.5
 
 [[stage]]
-chkpt_file = "/cosmos/vast/scratch/l1joseph/reinvent_rl/stage1.chkpt"
+chkpt_file = "/cosmos/vast/scratch/l1joseph/reinvent_rl/stage2.chkpt"
 termination = "simple"
 max_score = 0.85
 min_steps = 25
-max_steps = 250
+max_steps = 250                          # another 250 steps on top of stage 1
 
 [stage.scoring]
 type = "geometric_mean"
