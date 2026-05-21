@@ -17,7 +17,7 @@ from pathlib import Path
 
 import yaml
 from Bio.PDB import PDBParser
-from Bio.PDB.Polypeptide import three_to_one, is_aa
+from Bio.PDB.Polypeptide import is_aa
 
 
 THREE_TO_ONE = {
