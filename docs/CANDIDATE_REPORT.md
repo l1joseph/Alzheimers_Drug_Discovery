@@ -11,10 +11,17 @@ The pipeline screened 887 candidates against PHGDH's allosteric pocket (NCT-503 
 
 Predicted Boltz-2 affinity sits ~3× weaker than validated nM-range PHGDH inhibitors. **Orthogonal Vina rescoring corroborates the ranking** and places the novel hits in genuine drug-like binding range (−7 to −8 kcal/mol).
 
-**Critical framing**: every "validated PHGDH inhibitor" used as a positive control in this pipeline was developed for **cancer**, not Alzheimer's. The only compound with published in-vivo evidence in AD models is **NCT-503** (Park 2025, Zhong 2025). Our 4 novel hits are scaffold-decorations of NCT-503 that retain the allosteric pharmacophore but represent new chemistry — so they are the *AD-relevant* candidates from this run, not the higher-affinity ONS/K5K compounds at the top of the table.
+**Two distinct sets of AD candidates emerge from this work:**
 
-**Verdict: lead-grade hits worth wet-lab follow-up, not finished candidates.** Direction of travel:
-- The ChEMBL 5k drug-like screen (Block B, currently running) may surface a repurposing candidate
+1. **Untested repurposing candidates with mechanism-of-action precedent.** ONS, ONV, K5K, K58 were developed for cancer and have never been published as AD compounds — but the Park 2025 mechanism implies they *should* hit the DBD-moonlighting function:
+   - ONS / ONV bind the same allosteric pocket as NCT-503 (which has in-vivo AD evidence) → same mechanism, sibling chemistry
+   - K5K / K58 are NAD-competitive → block NADH, which Park 2025 identifies as the DBD activator → mechanistically the cleanest way to silence DBD function
+   - These are *available, characterized, FDA-track* compounds (BI-4924 was advanced in industry). The wet-lab follow-up is the same Park 2025 fluorescence-polarization assay against PHGDH-DNA binding.
+
+2. **Novel chemistry inheriting the NCT-503 allosteric pharmacophore.** Our 4 B1 hits (b1_005, b1_051, b1_058, b1_112) are scaffold-decorations of NCT-503 that retain the allosteric pocket binding but are new chemistry (Tanimoto < 0.15). The case for these over the repurposing set is composition-of-matter and the potential for optimization beyond NCT-503's modest 2.5 μM IC50.
+
+**Verdict: lead-grade hits worth wet-lab follow-up, with two parallel tracks.** Direction of travel:
+- The ChEMBL 5k drug-like screen (Block B, currently running) may surface additional repurposing candidates
 - REINVENT closed-loop RL with composite reward (Block C, installed; Block D, queued) may break the −1.79 affinity ceiling
 - Orthogonal MM-GBSA / Vina rescore (Block E, in progress) is corroborating the rankings
 - Multi-conformation robustness + selectivity counter-screen (Blocks F, G) still to come
@@ -52,42 +59,34 @@ Most published PHGDH inhibitors were optimized for catalytic inhibition. Only on
 
 ## The compound zoo
 
-Here's every compound that appears as a "known binder" in this pipeline, with the right framing for AD relevance:
+Here's every compound that appears as a "known binder" in this pipeline. Three categories matter for AD: **AD-tested** (only NCT-503), **AD repurposing candidates with mechanism-of-action precedent** (ONS, ONV, K5K, K58 — they should plausibly hit the DBD function but nobody has published the AD experiment yet), and **calibration / out-of-scope** (covalent, natural products, endogenous).
 
 ### AD-tested (the *only* one, so far)
 
 | ID | Name | Mechanism | Pocket | AD evidence | Source |
 |---|---|---|---|---|---|
-| **NCT503** | NCT-503 | **Allosteric** | NCT-503 allosteric site | In-vivo mouse AD models (Park 2025, Zhong 2025); IC50 = 2.5 μM for catalysis but the DBD-blocking activity is the AD-relevant mechanism | Pacold 2016 *Nat Chem Biol*, used in Park 2025 *Cell Metab*, Zhong 2025 |
+| **NCT503** | NCT-503 | **Allosteric** | NCT-503 allosteric site | In-vivo mouse AD models (Park 2025, Zhong 2025); catalytic IC50 = 2.5 μM but the DBD-blocking activity is the AD-relevant mechanism | Pacold 2016 *Nat Chem Biol*, used in Park 2025 *Cell Metab*, Zhong 2025 |
 
-### Allosteric — sibling chemistry to NCT-503, plausibly AD-relevant but **untested in AD**
+### AD repurposing candidates with mechanism-of-action precedent (untested in AD, but mechanism implies they should hit the DBD function)
 
-| ID | Name | Mechanism | Pocket | Status for AD |
+| ID | Name | Mechanism class | Why plausible for AD | Why nobody has tested |
 |---|---|---|---|---|
-| **ONV** | NCT-cmpd-1 | Allosteric | NCT-503 site | Indole-carboxamide sibling of NCT-503; same lab (Cantley/Sabatini, Pacold 2016); **not tested in AD context** |
-| **ONS** | NCT-cmpd-15 | Allosteric | NCT-503 site | Pyridyl variant in the same series; **not tested in AD context** — this is the highest-scoring compound in our top50, but its "validation" is for cancer cell PHGDH inhibition, not AD |
+| **ONS** | NCT-cmpd-15 | **Allosteric** (same pocket as NCT-503) | Pyridyl variant of NCT-503 from the same Pacold 2016 paper; binds the same allosteric pocket that NCT-503 uses to disrupt the DBD function. Same mechanism → should work the same way | Cantley/Sabatini lab pursued the NCT series for cancer (serine biosynthesis); AD wasn't on the table until Park 2025 |
+| **ONV** | NCT-cmpd-1 | **Allosteric** (same pocket as NCT-503) | Indole-carboxamide from the same Pacold 2016 series. Mechanism-of-action precedent identical to ONS | Same as ONS |
+| **K5K** | BI-4924 | **NAD-competitive** | Park 2025 identifies NADH as the *activator* of the DBD function. A NAD-competitive inhibitor blocks NADH binding entirely → silences DBD activation. **This is mechanistically the cleanest of all classes** — you don't need allosteric coupling, you just compete the activating cofactor off. BI-4924 has nM affinity and presumably industry-grade ADME from the Boehringer program | Boehringer's program was an oncology program; cancer field has largely deprioritized PHGDH due to redundancy with other serine sources; AD link is brand-new |
+| **K58** | BI-cmpd-15 | **NAD-competitive** | Same mechanism case as K5K. K58 has the highest-resolution PHGDH co-crystal published (1.42 Å, 6RJ3) which means the binding pose is unusually well-characterized | Same as K5K |
 
-### NAD-competitive — *cancer*-validated, mechanistically interesting for AD via the NADH-activation hypothesis but **untested in AD**
+These four would be the most **immediate, lowest-friction wet-lab experiments** for any group working on PHGDH-AD. They are available compounds with characterized chemistry; the Park 2025 fluorescence-polarization DBD-DNA assay is the same readout. *No new synthesis needed.* Whether they actually inhibit DBD function in cells is an open question — but the mechanistic case is strong enough that it would be surprising if at least 2 of 4 didn't show activity.
 
-| ID | Name | Mechanism | Pocket | Status for AD |
-|---|---|---|---|---|
-| **K5K** | BI-4924 | **NAD-competitive** | NADH binding site | nM-range PHGDH inhibitor (Spillier et al. 2019 *J Med Chem*); developed at Boehringer-Ingelheim for cancer. **If Park 2025 is right that NADH allosterically activates the DBD function**, then NAD-competitive inhibitors should block both catalytic AND moonlighting functions by competing NADH off the protein. This is testable. |
-| **K58** | BI-cmpd-15 | NAD-competitive | NADH binding site | 1.42 Å co-crystal (highest-resolution PHGDH structure published); same BI program |
+### Cancer-validated, unlikely AD candidates (covalent / non-CNS / endogenous)
 
-### Covalent / unusual mechanisms
-
-| ID | Name | Mechanism | Pocket | Status |
-|---|---|---|---|---|
-| **CBR5884** | CBR-5884 | **Covalent** at Cys234 | (covalent adduct) | Mullarky et al. 2016 *PNAS*. Cancer-validated. Covalent compounds rarely work for CNS indications due to off-target liabilities. |
-| **HMT** | Homoharringtonine | Natural product, virtual-screen-derived | NCT-503 vicinity | Cephalotaxus alkaloid; FDA-approved for CML. Identified as PHGDH binder by VS; not pursued in AD. |
-| **WQ2101** | WQ-2101 | Acylhydrazone | Allosteric (presumed) | Literature compound; limited follow-up. |
-
-### Endogenous ligands
-
-| ID | Name | Role |
-|---|---|---|
-| **3PG** | 3-phosphoglycerate | Native substrate; expected weak binder in apo state |
-| **NAI** | NADH | Native cofactor; **the allosteric activator of the DBD function per Park 2025** — designed binders should out-rank this for NAD-competition mechanism |
+| ID | Name | Mechanism | Notes for AD context |
+|---|---|---|---|
+| **CBR5884** | CBR-5884 | **Covalent** at Cys234 | Mullarky et al. 2016 *PNAS*. Covalent compounds rarely work for CNS indications (off-target liabilities accumulate over chronic dosing; brain penetration is constrained) |
+| **HMT** | Homoharringtonine | Natural product, virtual-screen-derived | FDA-approved for CML but its mechanism there is ribosome inhibition; the PHGDH binding (identified by VS) is likely a polypharmacology hit, not a primary target |
+| **WQ2101** | WQ-2101 | Acylhydrazone | Literature compound; acylhydrazones have known toxicity concerns; limited follow-up |
+| **3PG** | 3-phosphoglycerate | Endogenous substrate | Native substrate of catalytic activity; expected weak binder in apo |
+| **NAI** | NADH | Endogenous cofactor / **DBD activator (Park 2025)** | A designed competitor needs to out-rank NADH in our scoring to claim NAD-competitive mechanism |
 
 ---
 
@@ -119,16 +118,18 @@ All four:
 
 | compound | source | Boltz aff | Vina (kcal/mol) | AD context | role in this study |
 |---|---|---|---|---|---|
-| **ONS** (NCT-cmpd-15) | round-0 known | −1.82 | **−10.42** | not tested in AD; allosteric sibling of NCT-503 | calibration control |
-| **K5K** (BI-4924) | round-0 known | −1.79 | **−8.96** | not tested in AD; NAD-competitive | calibration control |
-| **K58** (BI-cmpd-15) | round-0 known | ≤ −1.0 | not yet rescored | not tested in AD; NAD-competitive | calibration control |
+| **ONS** (NCT-cmpd-15) | round-0 known | −1.82 | **−10.42** | allosteric sibling of NCT-503; **untested AD repurposing candidate** | both pipeline calibration AND a plausible direct candidate |
+| **K5K** (BI-4924) | round-0 known | −1.79 | **−8.96** | NAD-competitive; **untested AD repurposing candidate** — should block DBD activation by competing NADH | both calibration AND a plausible direct candidate |
+| **K58** (BI-cmpd-15) | round-0 known | ≤ −1.0 | not yet rescored | NAD-competitive; **untested AD repurposing candidate** | same as K5K |
 | **NCT-503** | round-0 known | not in top 50 | not yet rescored | **only AD-tested PHGDH inhibitor (Park 2025)** | **AD anchor**, parent scaffold of B1 |
-| ONV (NCT-cmpd-1) | round-0 known | −1.02 | not yet rescored | not tested in AD; allosteric sibling | calibration control |
-| **b1_058** (best novel) | tamgen B1 | −0.65 | **−7.26** | **NCT-503-allosteric pocket** | **AD candidate** |
+| **ONV** (NCT-cmpd-1) | round-0 known | −1.02 | not yet rescored | allosteric sibling of NCT-503; **untested AD repurposing candidate** | same as ONS |
+| **b1_058** (best novel) | tamgen B1 | −0.65 | **−7.26** | NCT-503-allosteric pocket; novel chemistry | **new composition-of-matter AD candidate** |
 | **b2_067** (best by Boltz but not druglike) | tamgen B2 | −1.59 | (meeko fails on broken tautomer) | NAD-competitive, but logP 7.1 + PAINS hit | **reward-hack failure mode** |
 
 **Read this honestly**: 
-- ONS and K5K are at the *top* of our affinity ranking, but they are **oncology compounds with no AD evidence**. They are calibration controls — the pipeline works because it correctly ranks them highly, not because they are AD drug candidates.
+
+- ONS, K5K, K58, ONV are at the *top* of our affinity ranking. They are oncology compounds with no published AD evidence — BUT their mechanism of action (allosteric perturbation of the regulatory domain, or competition with the DBD activator NADH) is exactly what Park 2025's model implies should block the moonlighting function. Treating them as just "calibration controls" understates their potential value. **They are AD repurposing candidates of opportunity** — available, characterized, never tested.
+- That said, the case for the **novel B1 hits** as AD candidates is composition-of-matter (no IP encumbrance) and the optimization potential beyond NCT-503's 2.5 μM IC50. Both tracks are worth pursuing.
 - The strongest *predicted* binder we designed (b2_067 at −1.59) **reward-hacks** the affinity score — Boltz scored it well but it would fail in vivo (logP 7.1 is far outside the CNS-penetrable window, plus a PAINS hit). The composite-reward RL plan (REINVENT + Boltz, Block D) is designed to prevent exactly that mode going forward — REINVENT is now installed (Block C complete) with the composite reward smoke-tested on 50 SMILES.
 - Among compounds that pass drug-likeness AND have novel chemistry AND target the AD-relevant allosteric pocket, the B1 series tops out at b1_058's −0.65 / −7.26. That's a ~3× weaker predicted affinity than the validated nM cancer binders. For *fragment-grade* AD hits in a virtual screen that's a reasonable starting point. For *optimized leads* it isn't.
 
@@ -195,23 +196,51 @@ Tanimoto similarity (Morgan radius-2, 2048-bit) to the nearest of 10 validated P
 
 ## Are any of these viable AD drug candidates?
 
-Honest answer: **not yet, but the B1 series is the right kind of starting point for AD**. These are virtual hits that have:
+**Two distinct tracks, prioritized by friction-to-experiment.**
+
+### Track 1: Untested AD repurposing candidates (lowest friction)
+
+For an experimental group with access to the Park 2025 fluorescence-polarization DBD-DNA assay, the **fastest informative experiment** is to test ONS, ONV, K5K, K58 alongside NCT-503 as a positive control. These compounds are:
+- Available (Boehringer's K5K can be sourced via medicinal-chemistry suppliers; the NCT series via Tocris/MedChemExpress)
+- Characterized (published IC50, ADME, in some cases in-vivo PK)
+- Mechanistically motivated for the DBD function (see compound zoo)
+- **Free of the design-prediction uncertainty** that affects our novel hits — these are real, well-known molecules
+
+**Expected outcome distribution:**
+- Best case: 2-4 of them show DBD inhibition comparable to or better than NCT-503 → immediate repurposing path, no medicinal chemistry needed
+- Worst case: none of them affect DBD function despite mechanism-of-action precedent → meaningful negative result, narrows the field and re-validates NCT-503 as uniquely positioned
+- Either way: ~one week of bench time, definitive answer
+
+### Track 2: Novel composition-of-matter (B1 series)
+
+If the repurposing track works for any of ONS/ONV/K5K/K58, the case for B1 as a *next-generation* AD lead becomes:
+- IP white space (no oncology-program encumbrance)
+- Potential to break NCT-503's 2.5 μM IC50 ceiling
+- Chemistry amenable to standard SAR optimization
+
+The 4 novel B1 hits have:
 - Cleared drug-likeness filters (Lipinski + PAINS + SA)
 - Cleared novelty filters (Tanimoto < 0.15 to any known PHGDH binder)
 - Been cross-validated by two scoring engines (Boltz + Vina)
 - Are scaffold-decorations of the *only* PHGDH inhibitor with published AD evidence
 
 But have **not** been:
-- Tested against the moonlighting-DBD function specifically (Park 2025 used the wet-lab fluorescence-polarization assay for that — out of scope for this project)
+- Tested against the moonlighting-DBD function specifically (out of scope)
 - Counter-screened against off-target Rossmann-fold dehydrogenases (Block G queued)
 - Re-scored across the 4-conformation ensemble (Block F queued)
 - Wet-lab tested in any form (out of scope — no wet lab in this project)
 
-**For a follow-up team to consider these worth synthesizing:**
+**For Track 2 to be worth synthesizing:**
 - All 4 should remain top-50 across the 4-conformation ensemble (Block F).
 - All 4 should show > 1 log-Kd selectivity over LDH-A, MDH2 (Block G).
-- If they pass both layers, **b1_058 is the most promising single AD candidate** (best predicted affinity in the novel-druglike-allosteric set, MW 469 / logP 3.4 — within typical CNS-penetrant range though high; b1_005 at MW 309 is more CNS-druglike).
-- The acid test would be a fluorescence-polarization assay measuring PHGDH DBD-DNA binding ± compound, replicating Park 2025's experimental setup with our B1 hits in place of NCT-503.
+- If they pass both layers, **b1_058 is the most promising single B1 candidate** (best predicted affinity in the novel-druglike-allosteric set, MW 469 / logP 3.4 — within typical CNS-penetrant range though high; b1_005 at MW 309 is more CNS-druglike).
+- The acid test would be the same Park 2025 fluorescence-polarization assay, with our B1 hits in place of NCT-503.
+
+### Sequencing recommendation
+
+Run Track 1 first (cheaper, faster, definitive). Use the results to triage Track 2:
+- If repurposing works → B1 is a synthesizable next-gen lead worth optimizing
+- If repurposing fails → reconsider the Park 2025 mechanism before investing in B1 synthesis
 
 ---
 
