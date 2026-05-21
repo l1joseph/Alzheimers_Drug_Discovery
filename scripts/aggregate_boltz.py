@@ -24,7 +24,9 @@ def main():
 
     rows = []
     # Boltz output structure (v2.x): <pred_dir>/boltz_results_<run>/predictions/<input>/
-    for run_dir in sorted(pred_dir.glob("boltz_results_*")):
+    # Recursive in case the caller passed a parent containing several
+    # task*_apu* output dirs (the boltz_array_screen.sh layout).
+    for run_dir in sorted(pred_dir.rglob("boltz_results_*")):
         predictions = run_dir / "predictions"
         if not predictions.is_dir():
             continue

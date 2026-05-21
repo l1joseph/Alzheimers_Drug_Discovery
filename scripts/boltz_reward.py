@@ -79,66 +79,53 @@ def build_yaml(smi: str, lid: str, out_path: Path, seq: str, msa_path: Path):
         _yaml.safe_dump(body, f, default_flow_style=False, sort_keys=False, width=200)
 
 
-def score_batch_with_srun(yaml_dir: Path, out_dir: Path, n_apus: int) -> dict:
-    """Run boltz predict via srun in the parent allocation.
+def score_batch_with_sbatch(yaml_dir: Path, out_dir: Path) -> dict:
+    """Submit a 1-node sbatch (4 APUs, ~5 min for batch=64) and wait for completion.
 
-    We split YAMLs across APUs by creating sub-dirs and launching one Boltz
-    process per APU in parallel using srun.
+    Uses sbatch --wait so this call blocks until the scoring job finishes.
+    Re-uses the existing boltz_array_screen.sh infrastructure (a single
+    array task = 1 node = 4-APU fan-out via HIP_VISIBLE_DEVICES).
     """
-    job_id = os.environ.get("SLURM_JOB_ID")
-    if not job_id:
-        raise RuntimeError("must run inside sbatch (SLURM_JOB_ID not set)")
-    n_apus_per_node = 4
-    n_nodes = int(os.environ.get("SLURM_NNODES", "1"))
-    total_apus = n_nodes * n_apus_per_node
+    # Pre-split the YAMLs into 4 shards (one per APU)
+    project = PROJECT
+    n_shards = 4
+    split_dir = yaml_dir.parent / "split"
+    split_dir.mkdir(exist_ok=True)
+    # Wipe existing shards
+    for d in split_dir.glob("shard_*"):
+        for f in d.glob("*"):
+            f.unlink()
+        d.rmdir()
+    for i in range(n_shards):
+        (split_dir / f"shard_{i:02d}").mkdir()
 
     yamls = sorted(yaml_dir.glob("*.yaml"))
-    if not yamls:
-        return {}
-
-    # Round-robin into total_apus shards
-    shards = [[] for _ in range(total_apus)]
     for i, y in enumerate(yamls):
-        shards[i % total_apus].append(y)
+        link = split_dir / f"shard_{i % n_shards:02d}" / y.name
+        if not link.exists():
+            link.symlink_to(y)
 
-    # Stage shards into per-(node,apu) dirs
-    procs = []
-    for global_apu_idx, shard in enumerate(shards):
-        if not shard:
-            continue
-        node_idx = global_apu_idx // n_apus_per_node
-        local_apu = global_apu_idx % n_apus_per_node
-        sd = out_dir / f"shard_{global_apu_idx:02d}"
-        sd.mkdir(parents=True, exist_ok=True)
-        shard_in = out_dir / f"in_shard_{global_apu_idx:02d}"
-        shard_in.mkdir(parents=True, exist_ok=True)
-        for y in shard:
-            (shard_in / y.name).symlink_to(y) if not (shard_in / y.name).exists() else None
-        # Launch boltz via srun pinned to (node, apu)
-        cmd = [
-            "srun", "--jobid", job_id, "--exclusive",
-            "--nodes=1", "--ntasks=1",
-            f"--nodelist={os.environ.get('SLURM_JOB_NODELIST').split(',')[node_idx]}" if "," in os.environ.get("SLURM_JOB_NODELIST", "") else "",
-            "bash", "-c",
-            f"HIP_VISIBLE_DEVICES={local_apu} "
-            f"boltz predict {shard_in} --use_msa_server --no_kernels "
-            f"--cache {BOLTZ_CACHE} --out_dir {sd} --output_format mmcif "
-            f"--accelerator gpu --devices 1",
-        ]
-        cmd = [c for c in cmd if c]
-        log = sd / "boltz.log"
-        p = subprocess.Popen(cmd, stdout=open(log, "w"), stderr=subprocess.STDOUT)
-        procs.append((p, sd, shard))
+    # Run sbatch --wait
+    label = out_dir.name
+    cmd = [
+        "sbatch", "--wait",
+        "--job-name", f"reinvent-step-{label}",
+        "--array=0-0",
+        f"--export=ALL,YAML_SPLIT_DIR={split_dir},RUN_LABEL=rl_{label}",
+        str(project / "slurm" / "boltz_array_screen.sh"),
+    ]
+    res = subprocess.run(cmd, capture_output=True, text=True, timeout=7200)
+    print(f"[step] sbatch exit={res.returncode}; stdout={res.stdout.strip()}", file=sys.stderr)
+    if res.returncode != 0:
+        print(f"[step] sbatch stderr: {res.stderr[:500]}", file=sys.stderr)
 
-    for p, _, _ in procs:
-        p.wait()
-
-    # Collect affinity_pred_value from each per-yaml output dir
+    # Look for outputs under SCRATCH/runs/boltz_rl_<label>_*
     scores = {}
-    for _, sd, shard in procs:
-        # Boltz writes predictions under sd/boltz_results_*/predictions/<id>/affinity_<id>.json
-        for pred_root in sd.glob("boltz_results_*/predictions"):
-            for cand in pred_root.iterdir():
+    for run_root in sorted(SCRATCH.glob(f"runs/boltz_rl_{label}_*")):
+        for pred_dir in run_root.rglob("predictions"):
+            for cand in pred_dir.iterdir():
+                if not cand.is_dir():
+                    continue
                 aff_json = cand / f"affinity_{cand.name}.json"
                 if aff_json.exists():
                     try:
@@ -184,8 +171,8 @@ def main():
         for i, smi in enumerate(smiles):
             lid = f"lig_{i:03d}"
             build_yaml(smi, lid, yaml_dir / f"{lid}.yaml", seq, TARGET_MSA)
-        # Score via srun
-        affs = score_batch_with_srun(yaml_dir, out_dir, args.n_apus)
+        # Score via sbatch --wait
+        affs = score_batch_with_sbatch(yaml_dir, out_dir)
 
     # Compute composite reward per SMILES
     rewards = []

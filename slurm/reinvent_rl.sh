@@ -3,13 +3,16 @@
 #SBATCH --output=/cosmos/nfs/home/l1joseph/Alzheimers_Drug_Discovery/logs/%x_%j.out
 #SBATCH --error=/cosmos/nfs/home/l1joseph/Alzheimers_Drug_Discovery/logs/%x_%j.err
 #SBATCH --partition=cluster
-#SBATCH --nodes=4
+#SBATCH --nodes=1
 #SBATCH --time=07:00:00
 #
 # REINVENT4 staged-learning RL run with Boltz-2 composite-reward scoring.
-# Runs the REINVENT agent on the head node (CPU); for each RL step the
-# ExternalProcess component (scripts/boltz_reward.py) uses srun against the
-# parent SLURM allocation to fan Boltz scoring out across all 4 nodes x 4 APUs.
+# This sbatch reserves only 1 node for REINVENT itself (it's CPU-bound on the
+# head node, only needs 1 GPU for the prior model). For each RL step the
+# ExternalProcess scorer (scripts/boltz_reward.py) launches a fresh nested
+# sbatch via `sbatch --wait` against the cluster pool (1 node × 4 APUs per
+# step), waits for it, then continues. Adds ~30s/step queue overhead but
+# avoids the srun-in-allocation complexity.
 #
 # Tuning knobs:
 #   batch_size : in configs/reinvent_rl_phgdh.toml ([parameters])
