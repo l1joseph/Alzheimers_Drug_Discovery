@@ -135,7 +135,31 @@ All four:
 
 ### Orthogonal Vina rescore is real corroboration
 
-Two independent scoring engines (Boltz neural network + Vina physics-based docking) agree on the ranking. Vina also gives the novel hits a more optimistic absolute reading (−7 to −8 kcal/mol = micromolar lead-grade) than Boltz's affinity prediction alone. **This is the kind of cross-validation that separates a "model artifact" from a "real signal."**
+Two independent scoring engines (Boltz neural network + Vina physics-based docking) agree on the top of the ranking. Vina also gives the novel hits a more optimistic absolute reading (−7 to −8 kcal/mol = micromolar lead-grade) than Boltz's affinity prediction alone.
+
+**Vina also re-promotes a second tier that Boltz under-ranked.** These compounds slightly exceed Lipinski MW 500, but they have low Tanimoto to known PHGDH binders, are synthesizable (SA 3.0–3.9), and Vina puts them at near-ONS strength. *They cover both mechanism classes* — B1 (allosteric, AD-pocket) and r2b2 (NAD-competitive, blocks DBD activator):
+
+| id | Boltz | **Vina** | MW | logP | SA | Tani | nearest | mechanism class | note |
+|---|---|---|---|---|---|---|---|---|---|
+| **b1_122** | −0.46 | **−9.61** | 631 | 5.2 | 3.9 | 0.15 | NCT-cmpd-15 | allosteric | MW 631 (bRo5); novel chemistry, near-ONS Vina |
+| **b1_040** | −0.33 | **−9.45** | 584 | 4.6 | 3.2 | 0.16 | BI-cmpd-15 | allosteric | MW 584 (bRo5); good SA |
+| **r2b2_107** | −0.66 | **−9.26** | 512 | 4.1 | 3.2 | 0.16 | BI-cmpd-15 | **NAD-competitive** | barely over MW (512); strongest novel NAD-competitive |
+| **r2b2_285** | −0.56 | **−9.12** | 514 | 4.0 | 3.0 | 0.17 | BI-4924 | **NAD-competitive** | bRo5 by 14 Da; novel NAD-competitive |
+| **r2b2_363** | −0.27 | **−9.01** | 518 | 4.2 | 3.5 | 0.15 | CBR-5884 | NAD-competitive (covalent vicinity) | novel scaffold near Cys234 site |
+
+bRo5 ("beyond Rule of 5") doesn't disqualify a drug — venetoclax is 868 Da, lifitegrast is 615 — but it does mean these need either parenteral delivery or careful permeability/efflux engineering. **Worth knowing they exist.** The r2b2 series is particularly interesting because it's the *NAD-competitive design path* turning up novel chemistry that Vina rates near-K5K strength — the same mechanism class as the BI compounds, but novel.
+
+### Boltz-vs-Vina ranking changes (largest movers)
+
+For some compounds Boltz under-rated relative to Vina, suggesting Boltz may be losing signal at lower affinities:
+
+| compound | Boltz rank | Vina rank | Δ |
+|---|---|---|---|
+| **b1_005** | 32 | 16 | **+16** (Boltz under-rated) |
+| **b1_122** | (out of top 50, ~50+) | ~3 | **>>20** |
+| **b1_040** | 40+ | ~4 | **>>20** |
+
+These are exactly the cases where the orthogonal rescore is most valuable — it surfaces compounds that the primary scoring engine missed.
 
 ---
 
