@@ -7,20 +7,33 @@ See also: [PLAN.md](../PLAN.md), [PLAN_v2.md](../PLAN_v2.md), [README.md](../REA
 
 ## TL;DR
 
-The pipeline now has four independent candidate tracks, ordered by experimental friction:
+The pipeline has four independent candidate tracks. **The two extra validation passes (Block F multi-conformation + kinase counter-screen) added since the initial v2 report materially refined the ranking.**
 
 | Track | What | Best candidate | Status |
 |---|---|---|---|
-| 1 — **AD repurposing** | Validated PHGDH binders with mechanism-of-action precedent for the DBD function (Park 2025) | **K58 (BI-cmpd-15)** — strongest selective binder, sel_idx −2.36 | **Recommended wet-lab next step** |
-| 2 — **Novel scaffold-seeded** | TamGen B1/B2 outputs, novel composition-of-matter | **b1_005** at Boltz −0.39 / Vina −8.15 (best CNS profile of survivors) | Pending validation |
+| 1 — **AD repurposing** | Validated PHGDH binders, pass both selectivity panels and multi-conformation robustness | **K58 (BI-cmpd-15)** — cleanest binder across all panels (combined sel_idx −4.78) | **Recommended wet-lab next step** |
+| 2 — **Novel scaffold-seeded** | TamGen B1/B2 outputs, novel composition-of-matter | **r2b2_107** — only survivor of both selectivity panels; b1 series mostly dropped | Pending validation |
 | 3 — **ChEMBL repurposing** | 5k drug-like ChEMBL screen | **CHEMBL3986234** (LRRK2/Parkinson's — CNS-tuned) | Untested; provenance caveats |
-| 4 — **REINVENT de novo** | 66-step RL run with composite reward + Boltz oracle | **step 59**, reward 0.752, MW 293, QED 0.778, Tani 0.19 | Computational only |
+| 4 — **REINVENT de novo** | 100-step RL run with composite reward + Boltz oracle | **(no Tier-1 candidate)** — step-59 hit didn't hold up at multi-conf | Composition only |
 
-**Single biggest finding from the v2 work**: **the off-target selectivity screen (Block G) reorders the candidate ranking dramatically.** K58 (BI-cmpd-15) — the highest-resolution PHGDH co-crystal (1.42 Å) — emerges as the strongest selective PHGDH binder in our entire set with sel_idx −2.36 (no off-target binding detected at all). K5K (BI-4924) is second. Both are NAD-competitive — mechanistically the cleanest way to silence the DBD function per Park 2025. The Track 1 wet-lab experiment is now sharply specified.
+**Headline findings from the two extra validation passes:**
 
-**A B1 candidate was dropped after selectivity testing**: b1_112 actually prefers GAPDH over PHGDH (sel_idx +0.48). Down to 3 novel druglike B1 hits.
+1. **K58 (BI-cmpd-15) is the cleanest binder in the entire study** by a wide margin. Combined selectivity index −4.78 (sum of dehydrogenase panel −2.36 + kinase panel −2.42). 1.42 Å co-crystal published (PDB 6RJ3). NAD-competitive mechanism. **This was the Track 1 #1 in the original v2 report; the new validation data only reinforces it.**
 
-**REINVENT did learn slowly**: max reward edged from 0.714 (step 10) to 0.725 (step 41), and the chemistry diversified considerably across the run (747 unique novel druglike SMILES at reward ≥ 0.55). But the affinity ceiling (~−0.8 logKd) wasn't broken — the validated nM PHGDH inhibitors at affinity −1.79 remain unmatched by anything generated.
+2. **ONS (NCT-cmpd-15) upgraded from "modest" to Tier 1.** The original Block G dehydrogenase panel suggested ONS was less selective than its sibling NCT-503. The kinase panel reverses this: ONS scores GRK5/GRK2 essentially zero (~+0.0), giving it sel_idx −1.82 vs kinases. Combined −2.58 puts it solidly in the Tier 1 wet-lab set with K58, K5K, and NCT-503.
+
+3. **The novel B1 hits collapse as composition-of-matter candidates.** The kinase counter-screen reveals:
+   - **b1_058 actually PREFERS GRK2 over PHGDH** (sel_idx +0.75) — the headlining "best novel druglike" from v1 turns out to be a kinase-pharmacophore artifact.
+   - **b1_112 was already dropped** (Block G prefers GAPDH); kinase data confirms (+0.61).
+   - **b1_005** is borderline non-selective overall (combined −0.26).
+   - The lipophilic decoration applied during TamGen B1 generation produced kinase-like binding modes — exactly the failure mode the ChEMBL kinase enrichment had flagged.
+   - **Track 2 effectively collapses to a single survivor: r2b2_107** (novel NAD-competitive scaffold, combined sel_idx −1.27).
+
+4. **The REINVENT step-59 "headline" hit doesn't hold up.** Multi-conformation rescore shows it only achieves −0.17 to +0.10 affinity across 4 PHGDH backbones (mean +0.05). The 0.752 composite reward was driven by QED + drug-likeness components, NOT actual binding. **Drop from candidate list.**
+
+5. **b1_115 emerges as a previously-overlooked candidate.** Multi-conformation Boltz shows it scores −1.08 to −1.73 across the ensemble — near-ONS-strong. In v1 it was rank 18 at only −0.56. Worth re-screening through both selectivity panels (not in this run's top-10 set).
+
+**Bottom line**: the Tier 1 AD-repurposing recommendation is now the *clearest* deliverable. The novel composition-of-matter story is much weaker than the initial v2 report suggested.
 
 ---
 
@@ -53,15 +66,15 @@ Almost every published PHGDH inhibitor was optimized for catalytic inhibition. O
 
 ## Track 1: AD repurposing candidates (recommended wet-lab path)
 
-**The Block G selectivity counter-screen makes this the sharpest deliverable from the v2 work.**
+**Both selectivity panels + multi-conformation robustness make this the sharpest deliverable.**
 
-| ID | Name | Mechanism | Boltz aff | sel_idx vs LDH-A/MDH2/GAPDH/IDH1 | Vina (kcal/mol) | Source paper |
-|---|---|---|---|---|---|---|
-| **K58** | **BI-cmpd-15** | NAD-competitive (NADH site) | −1.0 | **−2.36** (strongest selective) | not rescored | Spillier 2019 *J Med Chem* (BI program) |
-| **K5K** | **BI-4924** | NAD-competitive (NADH site) | −1.79 | **−1.62** | −9.19 | Spillier 2019 *J Med Chem* (BI program) |
-| **NCT-503** | NCT-503 | Allosteric (NCT-503 site) | −0.30 | **−1.46** | not rescored | Pacold 2016 *Nat Chem Biol* |
-| **ONV** | NCT-cmpd-1 | Allosteric | −1.02 | −1.13 | −8.00 | Pacold 2016 |
-| **ONS** | NCT-cmpd-15 | Allosteric | −1.82 | −0.76 (GAPDH off-target close) | −10.58 | Pacold 2016 |
+| ID | Name | Mechanism | Boltz aff (v1) | Mean across 4 confs | Dehydrogenase sel_idx | Kinase sel_idx | **Combined sel_idx** | Vina | Source paper |
+|---|---|---|---|---|---|---|---|---|---|
+| **K58** | **BI-cmpd-15** | NAD-competitive | −1.0 | not multi-conf | **−2.36** | **−2.42** | **−4.78** | not rescored | Spillier 2019 *J Med Chem* |
+| **K5K** | **BI-4924** | NAD-competitive | −1.79 | −1.56 (stdev 0.18) | −1.62 | −1.93 | **−3.55** | −9.19 | Spillier 2019 *J Med Chem* |
+| **NCT-503** | NCT-503 | Allosteric | −0.30 | not multi-conf | −1.46 | −1.26 | **−2.72** | not rescored | Pacold 2016 *Nat Chem Biol* |
+| **ONS** | NCT-cmpd-15 | Allosteric | −1.82 | −1.65 (stdev 0.26) | −0.76 | **−1.82** | **−2.58** | −10.58 | Pacold 2016 |
+| ONV | NCT-cmpd-1 | Allosteric | −1.02 | −0.34 (stdev 0.14) | −1.13 | −0.53 | −1.66 | −8.00 | Pacold 2016 |
 
 **Recommendation**: Run a head-to-head test of K58, K5K, ONV, and NCT-503 in the **Park 2025 fluorescence-polarization PHGDH-DNA binding assay**, with NCT-503 as the positive control. Expected outcomes:
 
