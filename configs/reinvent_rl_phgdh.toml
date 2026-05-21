@@ -1,0 +1,56 @@
+# REINVENT4 staged-learning config for PHGDH AD-track lead generation
+#
+# Uses our Boltz-2 composite-reward scorer (scripts/boltz_reward.py) as the
+# primary ExternalProcess scoring component. Goal: 100 steps of de novo
+# generation with closed-loop Boltz feedback, batch_size=64.
+
+run_type = "staged_learning"
+device = "cuda:0"
+tb_logdir = "/cosmos/vast/scratch/l1joseph/reinvent_rl/tb_logs"
+json_out_config = "/cosmos/vast/scratch/l1joseph/reinvent_rl/_staged_learning.json"
+
+[parameters]
+summary_csv_prefix = "/cosmos/vast/scratch/l1joseph/reinvent_rl/staged_learning"
+use_checkpoint = false
+purge_memories = false
+
+prior_file = "tools/REINVENT4/priors/reinvent.prior"
+agent_file = "tools/REINVENT4/priors/reinvent.prior"
+
+batch_size = 64
+unique_sequences = true
+randomize_smiles = true
+tb_isim = false
+
+[learning_strategy]
+type = "dap"
+sigma = 128
+rate = 0.0001
+
+[diversity_filter]
+type = "IdenticalMurckoScaffold"
+bucket_size = 25
+minscore = 0.4
+minsimilarity = 0.4
+penalty_multiplier = 0.5
+
+[[stage]]
+chkpt_file = "/cosmos/vast/scratch/l1joseph/reinvent_rl/stage1.chkpt"
+termination = "simple"
+max_score = 0.85
+min_steps = 25
+max_steps = 100
+
+[stage.scoring]
+type = "geometric_mean"
+
+[[stage.scoring.component]]
+[stage.scoring.component.ExternalProcess]
+
+[[stage.scoring.component.ExternalProcess.endpoint]]
+name = "boltz_phgdh_reward"
+weight = 1.0
+
+params.executable = "/cosmos/nfs/home/l1joseph/miniforge3/envs/reinvent-rocm/bin/python"
+params.args = "/cosmos/nfs/home/l1joseph/Alzheimers_Drug_Discovery/scripts/boltz_reward.py"
+params.property = "reward"
