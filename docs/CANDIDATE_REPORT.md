@@ -12,9 +12,9 @@ The pipeline now has four independent candidate tracks, ordered by experimental 
 | Track | What | Best candidate | Status |
 |---|---|---|---|
 | 1 — **AD repurposing** | Validated PHGDH binders with mechanism-of-action precedent for the DBD function (Park 2025) | **K58 (BI-cmpd-15)** — strongest selective binder, sel_idx −2.36 | **Recommended wet-lab next step** |
-| 2 — **Novel scaffold-seeded** | TamGen B1/B2 outputs, novel composition-of-matter | **b1_058** at Boltz −0.65 / Vina −7.91 | Pending validation |
-| 3 — **ChEMBL repurposing** | 5k drug-like ChEMBL screen | **CHEMBL3093256** (GRK-2/5 hit) | Untested; provenance caveats |
-| 4 — **REINVENT de novo** | 51-step RL run with composite reward + Boltz oracle | **step 41**, reward 0.725, MW 326, Tani 0.11 | Computational only |
+| 2 — **Novel scaffold-seeded** | TamGen B1/B2 outputs, novel composition-of-matter | **b1_005** at Boltz −0.39 / Vina −8.15 (best CNS profile of survivors) | Pending validation |
+| 3 — **ChEMBL repurposing** | 5k drug-like ChEMBL screen | **CHEMBL3986234** (LRRK2/Parkinson's — CNS-tuned) | Untested; provenance caveats |
+| 4 — **REINVENT de novo** | 66-step RL run with composite reward + Boltz oracle | **step 59**, reward 0.752, MW 293, QED 0.778, Tani 0.19 | Computational only |
 
 **Single biggest finding from the v2 work**: **the off-target selectivity screen (Block G) reorders the candidate ranking dramatically.** K58 (BI-cmpd-15) — the highest-resolution PHGDH co-crystal (1.42 Å) — emerges as the strongest selective PHGDH binder in our entire set with sel_idx −2.36 (no off-target binding detected at all). K5K (BI-4924) is second. Both are NAD-competitive — mechanistically the cleanest way to silence the DBD function per Park 2025. The Track 1 wet-lab experiment is now sharply specified.
 
@@ -130,17 +130,19 @@ A 51-step REINVENT RL run with Boltz-2 as the inner-loop reward oracle (composit
 - Max reward: 0.725 (step 41); slow improvement from 0.714 at step 10
 - Mean reward of nonzero: 0.524
 
-**Top 5 REINVENT compounds (canonical SMILES, novel + druglike, ranked by composite reward):**
+**Top 5 REINVENT compounds (canonical SMILES, novel + druglike, ranked by composite reward) — updated after step 66:**
 
-| Rank | Step | Reward | Boltz aff | MW | Tani→known | SMILES preview |
-|---|---|---|---|---|---|---|
-| 1 | 41 | 0.725 | 0.72 | 326 | **0.11** | `COc1cncc(-c2cc(OC(F)(F)F)cc3[nH][nH]c(=O)c23)n1` |
-| 2 | 10 | 0.714 | 0.71 | 462 | 0.29 | `COc1cc(N2CCC(CNC(=O)c3cc(-c4ccc(C#N)cc4)nn3C)CC2)nc(OC)n1` |
-| 3 | 28 | 0.709 | 0.71 | 362 | 0.20 | `CC1(C)CC2C(C#N)=CCC1(O)C2NC(=O)c1cccc(-c2ccco2)c1` |
-| 4 | 51 | 0.705 | 0.70 | 334 | 0.15 | `OCCN=c1c...` (pyrimidinone) |
-| 5 | 30 | 0.703 | 0.70 | 531 | 0.22 | `CC1(S(=O)(=O)NCC(O)CC(CC(=O)O)c2cccc(Cl)c2)CCN(c2ccc(F)c(F)c2)CC1` |
+| Rank | Step | Reward | MW | logP | QED | Tani→known | SMILES preview |
+|---|---|---|---|---|---|---|---|
+| **1** | **59** | **0.752** | **293** | **3.32** | **0.778** | 0.19 → BI-cmpd-15 | `COc1cc(C(N)=O)ccc1-c1cc(O)c2ccccc2c1` |
+| 2 | 41 | 0.725 | 326 | — | — | **0.11** → NCT-503 family | `COc1cncc(-c2cc(OC(F)(F)F)cc3[nH][nH]c(=O)c23)n1` |
+| 3 | 10 | 0.714 | 462 | — | — | 0.29 | `COc1cc(N2CCC(CNC(=O)c3cc(-c4ccc(C#N)cc4)nn3C)CC2)nc(OC)n1` |
+| 4 | 28 | 0.709 | 362 | — | — | 0.20 | `CC1(C)CC2C(C#N)=CCC1(O)C2NC(=O)c1cccc(-c2ccco2)c1` |
+| 5 | 64 | 0.709 | — | — | — | — | `COc1c(S(=O)(=O)c2ccc(C)cc2)sc2c(N=c3cc[nH]cn3)ncnc12` |
 
-**Best Track 4 candidate**: the **step-41 hit** — pyrazolopyrimidone with methoxy-pyridine and trifluoromethoxy aryl. MW 326 (excellent CNS range), Tanimoto 0.11 (most novel of any candidate in the entire pipeline), passes Lipinski + PAINS + SA. This is the **purest "composition-of-matter" output** of the project.
+**Best Track 4 candidate**: the **step-59 hit** — methoxy-benzamide + hydroxy-naphthyl biphenyl. **MW 293, QED 0.778 (very high drug-likeness), CNS-druggable**, novel chemistry (Tanimoto 0.19 to BI-cmpd-15). This is the strongest single-molecule output of the REINVENT track, displacing the step-41 hit from the v2 report (which had Tanimoto 0.11 — more novel but larger and lower QED).
+
+Honorable mention: the step-41 hit (pyrazolopyrimidone, MW 326, Tani 0.11) remains the most novel-by-chemistry compound; worth synthesizing alongside step-59 to test two distinct scaffold ideas.
 
 **Honest framing**: REINVENT did learn slowly, but the Boltz affinity ceiling (~−0.8 logKd for novel chemistry) was the bottleneck. The agent diversified chemistry but couldn't break through to nM-range affinity within the 51-step budget. With longer training and tighter selectivity-aware reward, this could improve.
 
