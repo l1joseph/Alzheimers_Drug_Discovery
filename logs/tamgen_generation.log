@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "/Users/johnsmith/Desktop/beng_203/PHGDH_affinity/TamGen/generate.py", line 10, in <module>
+    import torch
+ModuleNotFoundError: No module named 'torch'

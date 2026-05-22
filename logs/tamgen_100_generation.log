@@ -1,0 +1,3 @@
+Done. Output written to: /Users/johnsmith/Desktop/beng_203/PHGDH_affinity/data/tamgen_output_100/output.csv
+/Users/johnsmith/miniconda3/envs/TamGen/lib/python3.9/multiprocessing/resource_tracker.py:216: UserWarning: resource_tracker: There appear to be 1 leaked semaphore objects to clean up at shutdown
+  warnings.warn('resource_tracker: There appear to be %d '
