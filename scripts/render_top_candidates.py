@@ -27,22 +27,21 @@ PROJECT = Path("/cosmos/nfs/home/l1joseph/Alzheimers_Drug_Discovery")
 OUT_DIR = PROJECT / "docs" / "figures" / "interactions"
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 
-B1 = "/cosmos/vast/scratch/l1joseph/b1_score_85100/boltz_results_tamgen_b1_yamls/predictions"
-R0 = "/cosmos/vast/scratch/l1joseph/round0_85062/boltz_results_round0_yamls/predictions"
+PRED = PROJECT / "data" / "predicted_poses"
 
 # (label, cif_path, descriptor)
 CANDIDATES = [
-    ("b1_058", f"{B1}/b1_058/b1_058_model_0.cif",
+    ("b1_058", PRED / "b1_058_boltz_pred.cif",
      "Novel druglike B1: aff -0.65, Tani 0.14 to BI-cmpd-15"),
-    ("b1_051", f"{B1}/b1_051/b1_051_model_0.cif",
+    ("b1_051", PRED / "b1_051_boltz_pred.cif",
      "Novel druglike B1: aff -0.48, Tani 0.12 to NCT-503"),
-    ("b1_005", f"{B1}/b1_005/b1_005_model_0.cif",
+    ("b1_005", PRED / "b1_005_boltz_pred.cif",
      "Novel druglike B1: aff -0.39, Tani 0.12 to NCT-503"),
-    ("b1_112", f"{B1}/b1_112/b1_112_model_0.cif",
+    ("b1_112", PRED / "b1_112_boltz_pred.cif",
      "Novel druglike B1: aff -0.37, Tani 0.15 to NCT-503"),
-    ("K5K",    f"{R0}/K5K/K5K_model_0.cif",
+    ("K5K",    PRED / "K5K_boltz_pred.cif",
      "Validated reference: BI-4924, aff -1.79"),
-    ("NCT503", f"{R0}/NCT503/NCT503_model_0.cif",
+    ("NCT503", PRED / "NCT503_boltz_pred.cif",
      "Validated reference: NCT-503, parent scaffold"),
 ]
 
