@@ -3,8 +3,9 @@ logs/*
 !logs/.gitkeep
 
 # heavy artifacts (raw + derived data — regenerate via scripts/prep_targets.py)
+# NOTE: data/targets/*.pdb is now tracked (4 files, ~700 KB total — defines the project)
+# NOTE: data/structures_reference/ is tracked (real PDB co-crystals used as Fig 4 references)
 data/structures/*.cif
-data/targets/*.pdb
 data/msa/
 data/msa_test/
 data/msa_test2/
