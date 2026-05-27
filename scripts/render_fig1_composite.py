@@ -1,16 +1,17 @@
-"""Assemble Figure 1: 3-panel composite (PHGDH structure + pockets,
-Park 2025 moonlighting mechanism, pipeline flowchart).
+"""Assemble Figure 1: 3-panel composite for the PHGDH-AD paper.
 
-Panel A (top-left): loaded from the PyMOL-rendered PNG produced by
-    scripts/render_fig1_panelA.py  ->  docs/figures/paper/fig1A_phgdh_pockets.png
+Panel A (top-left): PyMOL render of PHGDH with HHTH-DBD region + inhibitor pocket
+                    overlap highlighted. Loaded from
+                    docs/figures/paper/fig1A_phgdh_pockets.png
 
-Panel B (top-right): matplotlib schematic of catalytic vs DBD moonlighting modes.
+Panel B (top-right): Chen 2025 Cell mechanism schematic — catalytic mode
+                     (NAD+ + 3PG -> serine) and the moonlighting transcription-
+                     factor mode (HHTH-DBD drives IKKalpha + HMGB1).
 
-Panel C (bottom): horizontal pipeline flowchart with three swimlanes.
+Panel C (bottom):    horizontal pipeline flowchart with 4 swim-lanes.
 
 Output:
-    docs/figures/paper/fig1_target_pipeline.png   (300 DPI)
-    docs/figures/paper/fig1_target_pipeline.svg
+    docs/figures/paper/fig1_target_pipeline.{png,svg}   300 DPI
 
 Run under boltz-rocm env:
     python scripts/render_fig1_composite.py
@@ -30,7 +31,6 @@ PANEL_A_PNG = OUT_DIR / "fig1A_phgdh_pockets.png"
 OUT_PNG = OUT_DIR / "fig1_target_pipeline.png"
 OUT_SVG = OUT_DIR / "fig1_target_pipeline.svg"
 
-# Paper-style typography matching fig2_metrics_top10
 sns.set_theme(style="whitegrid", context="paper")
 plt.rcParams.update({
     "font.family": "DejaVu Sans",
@@ -44,9 +44,13 @@ plt.rcParams.update({
     "svg.fonttype": "none",
 })
 
-COLOR_ALLO = "#e6932a"     # orange — allosteric / NCT-503
-COLOR_CAT = "#1f7fb4"      # blue — catalytic / NADH
-COLOR_DBD = "#7a3c8c"      # purple — DBD / moonlighting
+COLOR_HHTH = "#c53030"       # red — HHTH-DBD region
+COLOR_OVERLAP = "#e6c800"    # yellow — pocket residues overlapping HHTH (149-156)
+COLOR_POCKET = "#e6932a"     # orange — pocket residues outside HHTH
+COLOR_NADH = "#1f9fb4"       # cyan — NADH cofactor
+COLOR_INH = "#b53389"        # magenta — K58 inhibitor
+COLOR_CAT = "#1f7fb4"        # blue — catalytic dimer
+COLOR_TF = "#7a3c8c"         # purple — transcription factor mode dimer
 COLOR_DNA1 = "#444444"
 COLOR_DNA2 = "#888888"
 COLOR_BOX_GEN = "#ecd1ad"
@@ -56,7 +60,7 @@ COLOR_BOX_RANK = "#e9c2c2"
 
 
 # --------------------------------------------------------------------------- #
-# Panel A: PyMOL PNG + matplotlib labels overlay
+# Panel A: PyMOL PNG + matplotlib legend overlay (no arrows; legend swatches)
 # --------------------------------------------------------------------------- #
 def draw_panel_a(ax):
     if PANEL_A_PNG.exists():
@@ -71,62 +75,55 @@ def draw_panel_a(ax):
     ax.spines[:].set_visible(False)
     ax.grid(False)
 
-    # In-figure labels (positioned to point at the two pocket patches in the
-    # PyMOL render; tuned for the rendered orientation).
-    # In the 800x800 PyMOL image: orange (allosteric) sticks sit slightly
-    # left-of-center near y~0.66; cyan (catalytic) sticks sit at ~(0.50, 0.60).
-    ax.annotate(
-        "NCT-503 allosteric site",
-        xy=(0.40, 0.66), xycoords="axes fraction",
-        xytext=(0.02, 0.94), textcoords="axes fraction",
-        fontsize=10, color=COLOR_ALLO, fontweight="bold", ha="left",
-        arrowprops=dict(arrowstyle="-|>", color=COLOR_ALLO, lw=1.5,
-                        shrinkA=0, shrinkB=2,
-                        connectionstyle="arc3,rad=0.15"),
-        bbox=dict(boxstyle="round,pad=0.25", fc="white",
-                  ec=COLOR_ALLO, lw=1.2),
-    )
-    ax.annotate(
-        "NADH / catalytic site",
-        xy=(0.50, 0.60), xycoords="axes fraction",
-        xytext=(0.55, 0.05), textcoords="axes fraction",
-        fontsize=10, color=COLOR_CAT, fontweight="bold", ha="left",
-        arrowprops=dict(arrowstyle="-|>", color=COLOR_CAT, lw=1.5,
-                        shrinkA=0, shrinkB=2,
-                        connectionstyle="arc3,rad=-0.2"),
-        bbox=dict(boxstyle="round,pad=0.25", fc="white",
-                  ec=COLOR_CAT, lw=1.2),
-    )
-
-    ax.set_title("a   PHGDH target: two druggable sites on the apo monomer",
+    ax.set_title("a   PHGDH target: inhibitor pocket overlaps the HHTH-DBD motif",
                  loc="left", fontsize=12, fontweight="bold")
 
+    # Inset legend with color swatches
+    legend_items = [
+        (COLOR_HHTH,    "HHTH-DBD ribbon (residues 103–165)"),
+        (COLOR_OVERLAP, "Pocket residues in HHTH (149–156)"),
+        (COLOR_POCKET,  "Pocket residues outside HHTH"),
+        (COLOR_NADH,    "NADH cofactor (6CWA)"),
+        (COLOR_INH,     "K58 inhibitor (6RJ3)"),
+    ]
+    legend_x = 0.02
+    legend_y_top = 0.97
+    line_h = 0.045
+    for i, (color, label) in enumerate(legend_items):
+        y = legend_y_top - i * line_h
+        ax.add_patch(mpatches.Rectangle(
+            (legend_x, y - 0.018), 0.030, 0.024,
+            transform=ax.transAxes,
+            facecolor=color, edgecolor="black", linewidth=0.6,
+            zorder=5,
+        ))
+        ax.text(
+            legend_x + 0.040, y, label,
+            transform=ax.transAxes,
+            fontsize=8.0, color="black", ha="left", va="center",
+            bbox=dict(boxstyle="round,pad=0.18", fc="white", ec="none", alpha=0.85),
+            zorder=5,
+        )
+
 
 # --------------------------------------------------------------------------- #
-# Panel B: moonlighting mechanism cartoon
+# Panel B: Chen 2025 moonlighting mechanism cartoon
 # --------------------------------------------------------------------------- #
-def _dimer(ax, x, y, color, label_top=None):
-    """Draw a PHGDH dimer as two stacked ovals at (x, y)."""
+def _dimer(ax, x, y, color):
     sub_h = 0.55
     sub_w = 0.9
-    # top subunit
     e1 = mpatches.Ellipse((x, y + sub_h * 0.55), sub_w, sub_h,
-                          facecolor=color, edgecolor="black", lw=1.2,
-                          alpha=0.92)
+                          facecolor=color, edgecolor="black", lw=1.2, alpha=0.92)
     e2 = mpatches.Ellipse((x, y - sub_h * 0.55), sub_w, sub_h,
-                          facecolor=color, edgecolor="black", lw=1.2,
-                          alpha=0.92)
+                          facecolor=color, edgecolor="black", lw=1.2, alpha=0.92)
     ax.add_patch(e1)
     ax.add_patch(e2)
-    if label_top:
-        ax.text(x, y + sub_h * 1.4, label_top, ha="center", va="bottom",
-                fontsize=9, fontweight="bold", color="black")
 
 
 def _arrow(ax, x0, y0, x1, y1, color="black", lw=1.4, style="-|>"):
-    arr = FancyArrowPatch((x0, y0), (x1, y1),
-                          arrowstyle=style, color=color,
-                          lw=lw, mutation_scale=14, shrinkA=2, shrinkB=2)
+    arr = FancyArrowPatch((x0, y0), (x1, y1), arrowstyle=style,
+                          color=color, lw=lw, mutation_scale=14,
+                          shrinkA=2, shrinkB=2)
     ax.add_patch(arr)
 
 
@@ -138,7 +135,6 @@ def _ligand(ax, x, y, label, color, r=0.10):
 
 
 def _dna_helix(ax, x0, y0, x1, y1):
-    """Draw a stylized DNA double-helix between two points."""
     import numpy as np
     n = 60
     t = np.linspace(0, 1, n)
@@ -150,10 +146,8 @@ def _dna_helix(ax, x0, y0, x1, y1):
     y_b = base + amp * np.sin(2 * np.pi * freq * t + np.pi)
     ax.plot(xs, y_a, color=COLOR_DNA1, lw=1.8)
     ax.plot(xs, y_b, color=COLOR_DNA2, lw=1.8)
-    # base-pair rungs
     for i in range(2, n - 2, 4):
-        ax.plot([xs[i], xs[i]], [y_a[i], y_b[i]],
-                color="#999999", lw=0.7)
+        ax.plot([xs[i], xs[i]], [y_a[i], y_b[i]], color="#999999", lw=0.7)
 
 
 def draw_panel_b(ax):
@@ -165,87 +159,75 @@ def draw_panel_b(ax):
     ax.spines[:].set_visible(False)
     ax.grid(False)
 
-    ax.set_title("b   The PHGDH moonlighting hypothesis (Park 2025)",
+    ax.set_title("b   PHGDH moonlights as a transcription factor (Chen et al. 2025)",
                  loc="left", fontsize=12, fontweight="bold")
 
-    # Vertical separator between the two modes
     ax.plot([5.0, 5.0], [0.4, 5.0], color="gray", lw=0.8,
             linestyle=(0, (4, 3)))
 
-    # ===== LEFT subpanel: Catalytic mode =====
-    ax.text(2.5, 5.05, "Catalytic mode", ha="center", va="bottom",
-            fontsize=10.5, fontweight="bold")
-
-    # Dimer
+    # ===== LEFT subpanel: catalytic mode =====
+    ax.text(2.5, 5.05, "Catalytic mode (canonical)",
+            ha="center", va="bottom", fontsize=10.5, fontweight="bold")
     _dimer(ax, 2.5, 2.7, COLOR_CAT)
-
-    # Substrate / cofactor entering
-    _ligand(ax, 1.05, 3.5, "NAD+", "#cfe7f5")
+    _ligand(ax, 1.05, 3.5, "NAD$^+$", "#cfe7f5")
     _ligand(ax, 1.05, 2.0, "3PG", "#cfe7f5")
     _arrow(ax, 1.30, 3.5, 1.95, 3.0, color="gray")
     _arrow(ax, 1.30, 2.0, 1.95, 2.5, color="gray")
-
-    # Product going out (serine)
     _arrow(ax, 3.1, 2.7, 3.95, 2.7, color="black", lw=1.6)
     _ligand(ax, 4.25, 2.7, "Ser", "#f3e6c3")
-
-    ax.text(2.5, 0.7, "Canonical: serine biosynthesis",
+    ax.text(2.5, 0.7, "Serine biosynthesis",
             ha="center", va="center", fontsize=8.5,
             style="italic", color="#555555")
 
-    # ===== RIGHT subpanel: Moonlighting DBD mode =====
-    ax.text(7.5, 5.05, "Moonlighting DBD mode", ha="center", va="bottom",
-            fontsize=10.5, fontweight="bold")
-
-    # Dimer (a different color tint to indicate the activated allosteric state)
+    # ===== RIGHT subpanel: moonlighting TF mode =====
+    ax.text(7.5, 5.05, "Moonlighting transcription factor",
+            ha="center", va="bottom", fontsize=10.5, fontweight="bold")
     _dimer(ax, 6.6, 2.7, "#bda6d4")
 
-    # NADH ligand bound allosterically (orange = allosteric switch)
-    _ligand(ax, 6.6, 2.7, "NADH", COLOR_ALLO, r=0.13)
-
-    # C-terminal regulatory / DBD domain box dangling off the dimer
-    dbd_box = FancyBboxPatch((7.3, 2.30), 0.85, 0.8,
-                             boxstyle="round,pad=0.02,rounding_size=0.10",
-                             linewidth=1.4, edgecolor="black",
-                             facecolor=COLOR_DBD, alpha=0.85)
-    ax.add_patch(dbd_box)
-    ax.text(7.73, 2.70, "DBD", ha="center", va="center", fontsize=9,
+    # HHTH-DBD motif highlighted on the dimer as a red wedge
+    hhth = FancyBboxPatch((7.15, 2.30), 1.10, 0.80,
+                          boxstyle="round,pad=0.02,rounding_size=0.10",
+                          linewidth=1.4, edgecolor="black",
+                          facecolor=COLOR_HHTH, alpha=0.85)
+    ax.add_patch(hhth)
+    ax.text(7.70, 2.95, "HHTH",
+            ha="center", va="center", fontsize=9,
             fontweight="bold", color="white")
+    ax.text(7.70, 2.55, "res 103–165",
+            ha="center", va="center", fontsize=7,
+            color="white", style="italic")
 
-    # Allosteric activation arrow (NADH -> DBD)
-    _arrow(ax, 6.85, 2.7, 7.25, 2.7, color=COLOR_ALLO, lw=1.6)
-    ax.text(7.05, 3.05, "activates", ha="center", va="bottom", fontsize=7.5,
-            color=COLOR_ALLO, style="italic")
+    # DNA helix
+    _dna_helix(ax, 6.55, 1.4, 9.5, 1.4)
+    _arrow(ax, 7.70, 2.30, 7.70, 1.55, color=COLOR_HHTH, lw=1.4)
 
-    # DBD binds DNA — draw helix beneath DBD
-    _dna_helix(ax, 6.55, 1.4, 9.4, 1.4)
-    # Connect DBD -> DNA
-    _arrow(ax, 7.73, 2.30, 7.73, 1.55, color=COLOR_DBD, lw=1.4)
+    # Gene targets + downstream
+    ax.text(8.05, 0.95,
+            "IKK$\\alpha$ + HMGB1\nin astrocytes",
+            ha="center", va="top", fontsize=8.5, color=COLOR_HHTH,
+            fontweight="bold")
+    ax.text(7.5, 0.30,
+            "→ NF-κB ↑, autophagy ↓\n→ amyloid pathology",
+            ha="center", va="top", fontsize=7.5, color="#555555", style="italic")
 
-    ax.text(8.0, 1.0, "AD-relevant gene targets",
-            ha="center", va="top", fontsize=8.5, color=COLOR_DBD,
-            fontweight="bold", style="italic")
-
-    ax.text(7.5, 0.55, "Non-canonical: transcriptional regulation",
-            ha="center", va="center", fontsize=8.5,
-            style="italic", color="#555555")
+    # NADH-independent annotation
+    ax.text(7.5, 4.45,
+            "(independent of\nenzymatic activity)",
+            ha="center", va="top", fontsize=7.5, color="#555555", style="italic")
 
 
 # --------------------------------------------------------------------------- #
-# Panel C: pipeline flowchart
+# Panel C: pipeline flowchart (unchanged)
 # --------------------------------------------------------------------------- #
 def _flow_stage(ax, x, y, w, h, title, sub_items, color):
-    """Draw a swim-lane group: a labeled box containing N sub-boxes."""
     outer = FancyBboxPatch((x, y), w, h,
                            boxstyle="round,pad=0.04,rounding_size=0.12",
                            linewidth=1.5, edgecolor="black",
                            facecolor=color, alpha=0.55)
     ax.add_patch(outer)
-    # Title at top
     ax.text(x + w / 2, y + h - 0.18, title,
             ha="center", va="top", fontsize=10.5, fontweight="bold",
             color="black")
-    # Sub-boxes inside, evenly spaced
     n = len(sub_items)
     inner_top = y + h - 0.40
     inner_bot = y + 0.18
@@ -273,9 +255,7 @@ def draw_panel_c(ax):
                  "→ validation → ranking",
                  loc="left", fontsize=12, fontweight="bold")
 
-    # 4 stages
     stages = [
-        # (x, y, w, h, title, items, color)
         (0.4, 0.4, 4.4, 4.2, "Candidate generation",
          ["TamGen\n(scaffold-seeded)",
           "ChEMBL 5k library",
@@ -287,18 +267,15 @@ def draw_panel_c(ax):
          COLOR_BOX_SCORE),
         (10.0, 0.4, 6.0, 4.2, "Validation",
          ["Multi-conformation robustness\n(4 PHGDH backbones)",
-          "Off-target panel: 4 Rossmann-fold\ndehydrogenases",
-          "Off-target panel: 2 GRK kinases"],
+          "Off-target: 4 Rossmann-fold\ndehydrogenases",
+          "Off-target: 2 GRK kinases"],
          COLOR_BOX_VAL),
         (16.6, 0.4, 3.2, 4.2, "Ranking",
          ["Combined selectivity\nindex"],
          COLOR_BOX_RANK),
     ]
-
     for s in stages:
         _flow_stage(ax, *s)
-
-    # Arrows between stages
     arrow_y = 2.5
     for i in range(len(stages) - 1):
         x0 = stages[i][0] + stages[i][2] + 0.05
@@ -311,8 +288,6 @@ def draw_panel_c(ax):
 
 
 # --------------------------------------------------------------------------- #
-# Compose Figure 1
-# --------------------------------------------------------------------------- #
 def main():
     fig = plt.figure(figsize=(14, 11))
     gs = GridSpec(
@@ -322,17 +297,13 @@ def main():
         width_ratios=[1.0, 1.0],
         hspace=0.18, wspace=0.08,
     )
-
     ax_a = fig.add_subplot(gs[0, 0])
     ax_b = fig.add_subplot(gs[0, 1])
     ax_c = fig.add_subplot(gs[1, :])
-
     draw_panel_a(ax_a)
     draw_panel_b(ax_b)
     draw_panel_c(ax_c)
-
-    fig.savefig(OUT_PNG, dpi=300, bbox_inches="tight",
-                facecolor="white")
+    fig.savefig(OUT_PNG, dpi=300, bbox_inches="tight", facecolor="white")
     fig.savefig(OUT_SVG, bbox_inches="tight", facecolor="white")
     plt.close(fig)
     print(f"wrote {OUT_PNG}")

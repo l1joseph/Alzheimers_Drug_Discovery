@@ -1,24 +1,27 @@
-"""Render Panel A for paper Figure 1: PHGDH structure with two pockets labeled.
+"""Render Panel A for paper Figure 1: PHGDH structure with HHTH-DBD + inhibitor pocket.
 
-Loads phgdh_6CWA_apo.pdb (cartoon, gray). Highlights two pockets using the
-project's own pocket-center JSON files (these were computed by aligning the
-NCT-503 series allosteric co-crystals to 6CWA and taking centroids):
+Updated mechanistic framing (per Chen et al. 2025 Cell 188(13), 3513-3529):
 
-  - NCT-503 allosteric site center -> orange labeled sphere + nearby pocket residues
-    (within 6 A of center). Source: pocket_center_allosteric.json (6PLF ONV).
-  - NADH / catalytic Rossmann site -> cyan labeled sphere + nearby pocket residues.
-    Source: pocket_center.json (6CWA catalytic).
+  - The HHTH (helix-helix-turn-helix) DNA-binding motif spans residues 103-165
+    (within the nucleotide-binding domain).
+  - All published PHGDH inhibitor co-crystals converge on a single cofactor-
+    adjacent pocket; 30-38% of each inhibitor's pocket-lining residues fall
+    inside the HHTH-DBD span (residues 149-156 are in both).
+  - The NADH cofactor pose from 6CWA shows the spatial reference.
 
-The two pocket-residue rings are chosen so they don't share atoms (residues
-appearing in both are assigned to the closer center to keep distinct patches).
+Visual encoding:
+  - PHGDH cartoon: light gray
+  - HHTH-DBD region (103-165): RED ribbon segment (cartoon color)
+  - Inhibitor pocket overlap with HHTH (149-156): YELLOW sidechain sticks
+  - Inhibitor pocket OUTSIDE HHTH (77, 173-177, 192, 205-215): ORANGE sidechain sticks
+  - NADH cofactor (from 6CWA aligned): CYAN sticks
+  - K58 ligand (from 6RJ3 aligned): MAGENTA sticks - one representative inhibitor
 
-Output: docs/figures/paper/fig1A_phgdh_pockets.png  800x800, ray-traced.
+Output: docs/figures/paper/fig1A_phgdh_pockets.png at 300 DPI ray-traced.
 
 Run with the boltz-rocm env active:
     pymol -cqr scripts/render_fig1_panelA.py
 """
-import json
-import math
 from pathlib import Path
 
 import pymol
@@ -26,125 +29,97 @@ from pymol import cmd
 
 PROJECT = Path("/cosmos/nfs/home/l1joseph/Alzheimers_Drug_Discovery")
 APO = PROJECT / "data" / "targets" / "phgdh_6CWA_apo.pdb"
-POCKET_CAT = PROJECT / "pocket_center.json"
-POCKET_ALLO = PROJECT / "pocket_center_allosteric.json"
+CWA = PROJECT / "data" / "structures_reference" / "6CWA_PHGDH_NADH_3PG_ternary.cif"
+RJ3 = PROJECT / "data" / "structures_reference" / "6RJ3_K58_BI-cmpd-15.cif"
 OUT_PNG = PROJECT / "docs" / "figures" / "paper" / "fig1A_phgdh_pockets.png"
 OUT_PNG.parent.mkdir(parents=True, exist_ok=True)
 
-POCKET_R = 7.5  # A radius used to define pocket-lining residues from each center
+# Chen 2025 HHTH-DBD residue span
+HHTH_LO, HHTH_HI = 103, 165
 
-
-def load_center(path: Path) -> tuple[float, float, float]:
-    d = json.loads(path.read_text())
-    return (d["center_x"], d["center_y"], d["center_z"])
-
-
-def residues_near_point(target: str, point: tuple[float, float, float],
-                        radius: float) -> list[int]:
-    """Return CA-residue numbers in `target` whose CA atom is within `radius` of point."""
-    px, py, pz = point
-    cmd.pseudoatom("__center", pos=[px, py, pz])
-    sel = f"byres ({target} and polymer) within {radius} of __center"
-    cmd.select("__tmp", sel)
-    resis = set()
-    cmd.iterate("__tmp and name CA", "resis.add(int(resi))",
-                space={"resis": resis})
-    cmd.delete("__center")
-    cmd.delete("__tmp")
-    return sorted(resis)
-
-
-def dist(a, b):
-    return math.dist(a, b)
+# Inhibitor pocket residues from scripts/check_pocket_overlap.py
+# Union of pocket residues across all four inhibitor co-crystals (ONV, ONS, K58, K5K)
+POCKET_ALL = [77, 150, 151, 152, 153, 154, 155, 173, 174, 175, 176, 177, 192,
+              205, 206, 207, 209, 211, 212, 215]
+# The 149-156 subset is the overlap with the HHTH-DBD span
+POCKET_HHTH_OVERLAP = [r for r in POCKET_ALL if HHTH_LO <= r <= HHTH_HI]
+POCKET_NONHHTH = [r for r in POCKET_ALL if not (HHTH_LO <= r <= HHTH_HI)]
 
 
 def main():
     pymol.finish_launching(['pymol', '-qc'])
-
-    cat_center = load_center(POCKET_CAT)
-    allo_center = load_center(POCKET_ALLO)
-    print(f"catalytic center: {cat_center}")
-    print(f"allosteric center: {allo_center}")
-    print(f"d(catalytic, allosteric) = {dist(cat_center, allo_center):.2f} A")
-
     cmd.reinitialize()
-    cmd.load(str(APO), "phgdh")
+
+    # Load apo target as anchor
+    cmd.load(str(APO), "apo")
     cmd.remove("solvent")
-    cmd.remove("resn SO4+PEG+EDO+CL+NA+ZN+GOL+ACT+MG+CA")
 
-    # First find candidate residues near each center.
-    cat_cand = residues_near_point("phgdh", cat_center, POCKET_R)
-    allo_cand = residues_near_point("phgdh", allo_center, POCKET_R)
-    print(f"catalytic candidates ({len(cat_cand)}): {cat_cand}")
-    print(f"allosteric candidates ({len(allo_cand)}): {allo_cand}")
+    # Load NADH-containing reference + K58 co-crystal, align both to apo
+    cmd.load(str(CWA), "cwa")
+    cmd.load(str(RJ3), "rj3")
+    cmd.cealign("apo and polymer and chain A", "cwa and polymer and chain A")
+    cmd.cealign("apo and polymer and chain A", "rj3 and polymer and chain A")
 
-    # For overlap, assign the residue to the closer center (by CA position).
-    cat_resi = []
-    allo_resi = []
-    all_cand = sorted(set(cat_cand) | set(allo_cand))
-    for r in all_cand:
-        coords = []
-        cmd.iterate_state(1, f"phgdh and polymer and resi {r} and name CA",
-                          "coords.append((x,y,z))", space={"coords": coords})
-        if not coords:
-            continue
-        ca = coords[0]
-        if dist(ca, cat_center) <= dist(ca, allo_center):
-            cat_resi.append(r)
-        else:
-            allo_resi.append(r)
-    print(f"final catalytic ({len(cat_resi)}): {cat_resi}")
-    print(f"final allosteric ({len(allo_resi)}): {allo_resi}")
+    # Strip non-cofactor heteroatoms from references (keep only NADH and K58 ligands)
+    cmd.remove("cwa and not resn NAI")
+    cmd.remove("rj3 and not resn K58")
+    # Keep only chain A copies of the ligands
+    cmd.remove("cwa and not chain A")
+    cmd.remove("rj3 and not chain A")
 
-    cat_str = "+".join(str(r) for r in cat_resi) or "0"
-    allo_str = "+".join(str(r) for r in allo_resi) or "0"
-    cmd.select("cat_pocket", f"phgdh and polymer and resi {cat_str}")
-    cmd.select("allo_pocket", f"phgdh and polymer and resi {allo_str}")
-
-    # Style: cartoon backbone in light gray
+    # === STYLE ===
     cmd.hide("everything")
-    cmd.show("cartoon", "phgdh and polymer")
-    cmd.color("gray80", "phgdh and polymer")
-    cmd.set("cartoon_transparency", 0.0)
-
-    # NCT-503 allosteric pocket — orange sticks (sidechains)
-    cmd.show("sticks", "allo_pocket and sidechain")
-    cmd.color("orange", "allo_pocket and elem C")
-    cmd.util.cnc("allo_pocket")
-    cmd.set("stick_radius", 0.20, "allo_pocket")
-
-    # NADH catalytic pocket — cyan sticks (sidechains)
-    cmd.show("sticks", "cat_pocket and sidechain")
-    cmd.color("cyan", "cat_pocket and elem C")
-    cmd.util.cnc("cat_pocket")
-    cmd.set("stick_radius", 0.20, "cat_pocket")
-
-    # Pocket-center marker spheres (no PyMOL labels — those will be added in
-    # post via matplotlib so they don't get occluded by the structure)
-    cmd.pseudoatom("allo_marker", pos=list(allo_center), color="orange")
-    cmd.show("spheres", "allo_marker")
-    cmd.set("sphere_scale", 2.0, "allo_marker")
-    cmd.set("sphere_transparency", 0.20, "allo_marker")
-
-    cmd.pseudoatom("cat_marker", pos=list(cat_center), color="cyan")
-    cmd.show("spheres", "cat_marker")
-    cmd.set("sphere_scale", 2.0, "cat_marker")
-    cmd.set("sphere_transparency", 0.20, "cat_marker")
-
-    # Render style
     cmd.bg_color("white")
+
+    # 1) PHGDH cartoon — light gray
+    cmd.show("cartoon", "apo and polymer")
+    cmd.color("gray80", "apo and polymer")
+
+    # 2) HHTH-DBD region (103-165) — RED ribbon
+    cmd.color("firebrick", f"apo and polymer and resi {HHTH_LO}-{HHTH_HI}")
+
+    # 3) Inhibitor pocket OUTSIDE HHTH — ORANGE sticks (sidechain)
+    sel_str_non = "+".join(str(r) for r in POCKET_NONHHTH)
+    cmd.select("pocket_nonhhth", f"apo and polymer and resi {sel_str_non} and sidechain")
+    cmd.show("sticks", "pocket_nonhhth")
+    cmd.color("orange", "pocket_nonhhth and elem C")
+    cmd.util.cnc("pocket_nonhhth")
+    cmd.set("stick_radius", 0.20, "pocket_nonhhth")
+
+    # 4) Inhibitor pocket OVERLAP with HHTH — YELLOW sticks (the key residues, 149-156)
+    sel_str_overlap = "+".join(str(r) for r in POCKET_HHTH_OVERLAP)
+    cmd.select("pocket_hhth_overlap", f"apo and polymer and resi {sel_str_overlap} and sidechain")
+    cmd.show("sticks", "pocket_hhth_overlap")
+    cmd.color("yellow", "pocket_hhth_overlap and elem C")
+    cmd.util.cnc("pocket_hhth_overlap")
+    cmd.set("stick_radius", 0.25, "pocket_hhth_overlap")
+
+    # 5) NADH cofactor from 6CWA (aligned) — CYAN sticks
+    cmd.show("sticks", "cwa and resn NAI")
+    cmd.color("cyan", "cwa and resn NAI and elem C")
+    cmd.util.cnc("cwa and resn NAI")
+    cmd.set("stick_radius", 0.18, "cwa and resn NAI")
+
+    # 6) K58 inhibitor from 6RJ3 (aligned) — MAGENTA sticks (representative inhibitor)
+    cmd.show("sticks", "rj3 and resn K58")
+    cmd.color("magenta", "rj3 and resn K58 and elem C")
+    cmd.util.cnc("rj3 and resn K58")
+    cmd.set("stick_radius", 0.20, "rj3 and resn K58")
+
+    # === RENDER ===
     cmd.set("ray_shadows", 0)
     cmd.set("ray_trace_mode", 1)
     cmd.set("antialias", 2)
     cmd.set("ambient", 0.35)
+    cmd.set("cartoon_transparency", 0.0)
 
-    # Orient on the whole polymer, then rotate so pockets face camera
-    cmd.orient("polymer")
-    cmd.zoom("polymer", 6)
-    cmd.rotate("y", 60)
-    cmd.rotate("x", -20)
+    # Orient: focus on the pocket region, both pocket residues and HHTH visible
+    cmd.orient("apo and polymer")
+    cmd.zoom("(apo and polymer and resi 100-220) or (cwa and resn NAI) or (rj3 and resn K58)", 4)
+    cmd.rotate("y", 30)
+    cmd.rotate("x", -15)
 
-    cmd.png(str(OUT_PNG), width=800, height=800, dpi=300, ray=1)
+    cmd.png(str(OUT_PNG), width=900, height=900, dpi=300, ray=1)
     print(f"wrote {OUT_PNG}")
 
 
