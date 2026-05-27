@@ -23,19 +23,20 @@
 
 ## 2. Section content map
 
-### Title (1 of)
-- **"Selectivity-Validated Repurposing Candidates for the Moonlighting DNA-Binding Function of PHGDH in Alzheimer's Disease"** ← preferred
-- "Computational rescreen of PHGDH inhibitors against the Park 2025 moonlighting-DBD axis"
-- "Computational selectivity screen identifies BI-cmpd-15 as a candidate PHGDH-DBD inhibitor for Alzheimer's"
+### Title (LOCKED)
+
+> **"To Affinity and Beyond: A Structure-Informed Drug Discovery Pipeline for PHGDH Inhibitors Targeting the Alzheimer's-Relevant DNA-Binding Domain"**
+
+19 words. Hook + concrete claim + scope. "Pipeline" (not "platform") to be honest about scope — we built a specific workflow for PHGDH-AD, not a reusable framework.
 
 ### Abstract (≈150 words, sentence outline)
 1. PHGDH moonlights as a transcription factor via its C-terminal regulatory domain (Park 2025) and is implicated in AD.
-2. Of the published PHGDH inhibitors, only NCT-503 has in-vivo AD evidence.
+2. Of the published PHGDH inhibitors, only NCT-503 has in-vivo AD evidence; the rest of the chemical matter is plausibly AD-relevant but untested.
 3. We computationally screened 4 candidate sets — known binders, scaffold-seeded designs, ChEMBL repurposing, REINVENT RL — for both affinity and selectivity.
-4. Methods: Boltz-2 + AutoDock Vina + multi-conformation robustness + 6-off-target panel (4 Rossmann-fold dehydrogenases + 2 kinases).
-5. **K58 (BI-cmpd-15)** emerges as the cleanest selective binder (combined sel_idx −4.78).
-6. Three of four novel scaffold-seeded designs fail kinase selectivity — caught only by off-target screening.
-7. Recommendation: 4-compound wet-lab DBD-DNA assay (K58 / K5K / NCT-503 / ONS).
+4. Methods: Boltz-2 + AutoDock Vina + multi-conformation robustness + 6-off-target counter-screen (4 Rossmann-fold dehydrogenases + 2 kinases).
+5. **K58 (BI-cmpd-15)** emerges as the cleanest selective PHGDH binder (combined selectivity index −4.78), followed by K5K (BI-4924), NCT-503, and ONS (NCT-cmpd-15).
+6. Three of four novel scaffold-seeded designs fail kinase selectivity despite passing affinity + drug-likeness filters — a failure mode invisible to affinity-only screens.
+7. The Tier-1 candidates have published ADME profiles and would be tractable for downstream experimental validation against the Park 2025 DBD-activation axis.
 
 ### 1. Introduction (4 paragraphs, ≈500 words)
 1. **Biological problem** — PHGDH catalytic vs moonlighting DBD function; Park 2025 + Zhong 2025 AD link.
@@ -57,9 +58,9 @@
 - **3.5 Iterative improvement attempts** — TamGen scaffold-seeded rounds; REINVENT RL plateau analysis (rubric "outstanding" component)
 
 ### 4. Discussion (3 paragraphs, ≈350 words)
-1. **Main finding** — Tier 1 4-compound set is the wet-lab deliverable; K58 + K5K are the highest-priority new-to-AD candidates.
-2. **Methodological insight** — off-target panel reordered ranking AND killed top novel-scaffold designs; affinity-only screens miss this.
-3. **Limitations + future work** — no wet-lab; Boltz affinity stochasticity (multi-seed averaging needed); LRRK2 excluded due to length; scaffold-restricted REINVENT (Mol2Mol / LibInvent on NCT-503 core) is the natural next iteration.
+1. **Main finding** — K58 (BI-cmpd-15) and K5K (BI-4924) emerge as the cleanest selective PHGDH binders in our pipeline; both are NAD-competitive and have published industry-grade ADME from the Boehringer oncology program, making them strong mechanism-of-action candidates against the Park 2025 DBD-activation axis.
+2. **Methodological insight** — the off-target panel reordered the ranking AND killed three of our top novel-scaffold designs; affinity-only screens would have surfaced compounds that bind GRK kinases more tightly than PHGDH. This is a generalizable cautionary point for ML-based drug-design pipelines.
+3. **Limitations + future work** — no experimental validation in this study; Boltz affinity stochasticity (multi-seed averaging would help); LRRK2 excluded due to length limit; scaffold-restricted REINVENT (Mol2Mol / LibInvent on the NCT-503 core) is the natural next iteration. **One sentence on experimental follow-up**: The Park 2025 fluorescence-polarization PHGDH-DNA binding assay would be the most direct downstream test of the Tier 1 candidates' DBD-blocking activity.
 
 ### References (10–12, ACS-style numbered)
 Park 2025, Zhong 2025, Pacold 2016, Spillier 2019, Mullarky 2016, Possemato 2011, Locasale 2011, Wohlwend 2024 (Boltz), Mirdita 2022 (ColabFold), Loeffler 2024 (REINVENT4), Trott & Olson 2010 (Vina), Bickerton 2012 (QED).
@@ -154,17 +155,27 @@ Mechanism bonus: SMARTS panel of indazole, BI-4924 sulfone-amide, methyl-indole 
 
 ---
 
-## 6. Open decisions
+## 6. Resolved decisions
 
-| # | Decision | Default |
+| # | Decision | Resolution |
 |---|---|---|
-| 1 | Team composition (solo or coauthors?) | Treat as solo unless told otherwise; affects Author Contributions |
-| 2 | Title (3 options above) | First one |
-| 3 | Wet-lab claim strength | Recommend Tier 1 wet-lab (matches `CANDIDATE_REPORT.md`) |
-| 4 | Supplementary file allowed? | Assume yes; relegate REINVENT curve + 2D chem grid |
-| 5 | Citation style | ACS-numbered |
-| 6 | Figure 1 panels B + C tool | matplotlib (auto-generated) vs Inkscape (manual, prettier) |
-| 7 | K58 pose source for Fig 4 | Use real 6RJ3 co-crystal (vs Boltz-predicted) |
+| 1 | Team composition | **4 authors: Leo Joseph, Yashwin Madakamutil, Cale Seymour, Ziheng Wang** (CRediT contributions to be drafted in §3.5 below) |
+| 2 | Title | **LOCKED**: *"To Affinity and Beyond: A Structure-Informed Drug Discovery Pipeline for PHGDH Inhibitors Targeting the Alzheimer's-Relevant DNA-Binding Domain"* |
+| 3 | Wet-lab claim strength | **No wet-lab framing in the body.** A brief 1–2 sentence "experimental follow-up" mention in the Discussion (next steps) is acceptable. |
+| 4 | Supplementary file | **Yes, allowed.** Park REINVENT learning curve + 2D chemistry grid + larger selectivity tables there. |
+| 5 | Citation style | **ACS-numbered** (default) |
+| 6 | Figure 1 panels B + C tool | **matplotlib** auto-generated (no Inkscape) |
+| 7 | K58 pose source for Fig 4 | **Real 6RJ3 co-crystal** (1.42 Å). Render at `docs/figures/paper/fig4_K58_real_6RJ3.png`. Boltz-predicted version retained as `fig4_K58_boltz_pred.png` for supplementary comparison. |
+
+### Author Contributions (draft, to refine with team)
+
+> **Leo Joseph**: Conceptualization, pipeline architecture, AMD MI300A ROCm porting of Boltz-2 and TamGen, ChEMBL screen design, manuscript writing.
+> **Yashwin Madakamutil**: [TBD — typical contributions: TamGen scaffold-seeded branch design, REINVENT4 integration + composite reward formulation, data analysis].
+> **Cale Seymour**: [TBD — typical contributions: off-target selectivity panel design, AutoDock Vina rescore, multi-conformation Boltz analysis].
+> **Ziheng Wang**: [TBD — typical contributions: structural analysis, PyMOL figure preparation, drug-likeness filtering, manuscript review].
+> All authors: writing — review and editing.
+
+(Refine per actual team division of labor before submission.)
 
 ---
 
