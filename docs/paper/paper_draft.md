@@ -51,34 +51,58 @@ Pipeline runs were performed on the SDSC Cosmos cluster (AMD MI300A APUs, ROCm 6
 
 ## 3. Results
 
-*[to be drafted in next section]*
+### 3.1 Pipeline architecture and target characterization
+
+We constructed a candidate-generation → scoring → validation pipeline (Figure 1c) on AMD MI300A APUs and applied it to the PHGDH apo monomer (6CWA chain A) annotated with the Chen 2025 HHTH-DBD (Figure 1a). The all-pairs centroid distance matrix among five inhibitor co-crystals shows that the published "allosteric" and "NAD-competitive" PHGDH inhibitor classes converge on a single cofactor-adjacent subsite (max pairwise distance 3.3 Å among ONV, ONS, K58, K5K; 4–6 Å from the NADH centroid; HMT at 2.5 Å from NADH; 3PG > 12 Å away). Eight contiguous residues of this pocket (residues 149–156) sit inside the 103–165 HHTH-DBD span, providing a structural rationale for inhibition of the moonlighting function (Figure 1a, yellow sticks).
+
+### 3.2 Designed compounds and screening yields
+
+Three generation engines produced complementary candidate sets. **TamGen** scaffold-seeded branches (B1 NCT-503 seed, B2 BI-4924 seed, B3 PKU drugs) plus one iterative round generated **887 SMILES** total; Boltz-2 scoring yielded candidate affinities ranging from −1.82 (ONS reference) to weakly positive. **REINVENT4** with the composite reward executed **100 RL steps × batch 64 = 6,400 scored SMILES**; 747 unique compositions exceeded reward 0.55, with a global maximum of 0.752 at step 59. **ChEMBL 34** drug-like library screening returned **4,882 of 5,000** sampled compounds successfully scored (98 %). The composite-reward design was motivated by an early failure mode in which an affinity-only objective produced compound `b2_067` with Boltz affinity −1.59 but logP 7.13 and a PAINS substructure hit — a classic "reward-hacking" pattern; with PAINS / Brenk / SA > 7 hard-reject and trapezoidal Lipinski windows, no subsequent REINVENT-generated compound passed reward 0.55 with comparable physicochemical pathology.
+
+### 3.3 Selectivity-validated candidate ranking
+
+Combining Boltz-2 and Vina affinities with the six-target off-target panel (Figure 2, Figure 3) reorders the candidate ranking. By **combined selectivity index** (sum of dehydrogenase- and kinase-panel `sel_idx`), four validated PHGDH inhibitors form a Tier 1 set: **K58** (combined sel_idx = **−4.78**), K5K (−3.55), NCT-503 (−2.72), and ONS (−2.58). Of these, K58 is uniquely clean across all six off-targets (every off-target Boltz affinity is positive, ranging +0.14 to +1.62), consistent with its industry-grade lead-optimization history (Spillier et al. 2019) and its 1.42 Å co-crystal — the highest-resolution PHGDH structure published (PDB 6RJ3). One TamGen-generated novel scaffold (`r2b2_107`, a BI-4924-seeded derivative) survives both selectivity panels at combined sel_idx = −1.28. The kinase counter-screen — motivated by post-hoc analysis of top ChEMBL hits, seven of which originated from unrelated kinase drug-discovery programs — eliminates three of four novel B1 hits that had passed Boltz, Vina, and drug-likeness filters: `b1_058` prefers GRK2 by +0.75 log-Kd, `b1_112` prefers GRK kinases by +0.61, and `b1_005` is borderline non-selective. This failure mode is **invisible to affinity-only screens** and is the central methodological contribution of this work.
+
+### 3.4 Comparison with established PHGDH binders
+
+The Tier 1 candidates were directly compared against the validated reference set on three axes (Figure 2, Figure 4). On **affinity**, ONS attains the strongest predicted PHGDH binding (Boltz −1.82, Vina −10.58 kcal/mol), with K5K (−1.79 / −9.19), K58 (−1.00 / −8.66), and NCT-503 (−0.30 / −8.14) following; all four sit firmly in the lead-grade range (Vina < −7 kcal/mol). On **drug-likeness**, Lipinski-window indices show ONS, K5K, and ONV at the upper Ro5 boundary (MW 499–510, logP 3.1–4.8) while NCT-503 (MW 408) and K58 (MW 349) are smaller and more CNS-druggable; the B1 series novel hits cluster at MW 309–469 with PAINS-clean / SA ≤ 4 profiles. On **binding pose** (Figure 4), the K58 6RJ3 co-crystal and the Boltz-predicted poses of K5K and r2b2_107 all engage the same pocket cleft with H-bond donors / acceptors making contact with residues in the 149–156 HHTH overlap region. r2b2_107 reproduces the K5K binding mode despite Tanimoto 0.16 to the parent — a successful scaffold-decoration outcome.
+
+### 3.5 Iterative improvement attempts
+
+We tested two complementary strategies for improving candidate quality beyond the validated set. **TamGen scaffold-seeded iteration** (B1 round 1 → round 2; B2 round 1 → round 2) used best-of-round hits as new seeds for a subsequent generation pass. The loop converged: a top round-2 hit `r2b2_164` had canonical-SMILES identical to round-1 `b2_067`. **REINVENT4 RL** with the composite reward + Boltz-as-oracle produced novel chemistry (747 unique drug-like SMILES at reward ≥ 0.55) but did not converge on higher reward over 100 steps; first-third mean = 0.66, middle-third = 0.67, last-third = 0.66, with a single global maximum of 0.752 at step 59 not subsequently exceeded. The composite-reward agent successfully avoided the reward-hacking failure mode of round-1 b2_067 (no PAINS hits in 6,400 scored SMILES at reward ≥ 0.55) but the Boltz affinity ceiling around −0.8 logKd on novel chemistry was not breached. The strongest REINVENT-generated candidate by multi-conformation Boltz rescore (`step_59`) achieved mean affinity only −0.05 across four PHGDH backbones — indicating the high reward was driven by drug-likeness, novelty, and mechanism-bonus components rather than genuine binding.
 
 ## 4. Discussion
 
-*[to be drafted in next section]*
+The principal finding is that the **combined-selectivity ranking reorders the candidate set in scientifically informative ways**. **K58 (compound 15 of Spillier et al. 2019)** emerges as the cleanest selective PHGDH binder — combined sel_idx −4.78, 1.42 Å co-crystal, NAD-competitive mechanism with industry-grade ADME from the Boehringer oncology program — yet was not the candidate Chen et al. (2025) used to demonstrate AD rescue. The relevant context: Chen 2025 used NCT-503 because it had established mouse pharmacokinetics at the time of their experimental design and was the first allosteric PHGDH inhibitor characterized (Pacold et al. 2016). NCT-503's reported catalytic IC50 of ~2.5 μM is approximately 250-fold weaker than the BI compounds (~10 nM); it has no published high-resolution PHGDH co-crystal; and its selectivity profile in our panel shows modest off-target signal against GAPDH and MDH2 (combined sel_idx −2.72 vs −4.78 for K58). Chen 2025 thus establishes that the moonlighting axis is druggable — not that NCT-503 is the optimal compound for this purpose.
+
+Methodologically, the off-target counter-screen is the single most consequential validation layer in our pipeline. It both refined the Tier 1 ranking (upgrading ONS to Tier 1 after the kinase panel revealed its strong dehydrogenase off-target signal is not mirrored against kinases) and eliminated three of four novel B1 hits that had passed affinity, drug-likeness, and Tanimoto-novelty filters. The B1 collapse demonstrates a **kinase-pharmacophore-promiscuity failure mode** that is well-documented in screening campaigns but is invisible to single-target affinity ranking; given that 7 of 10 top ChEMBL hits in our drug-like library screen were repurposed kinase inhibitors, this failure mode is a generic risk for ML-guided PHGDH inhibitor design and should be incorporated as a standard counter-screen.
+
+Limitations of this study include (i) the absence of experimental affinity measurements; published nM-range IC50s for K5K and K58 establish that Boltz-2 predictions and crystal poses are well-anchored, but multi-seed Boltz averaging would tighten the multi-conformation robustness analysis. (ii) The kinase panel covered GRK kinases motivated by ChEMBL provenance; broader kinase off-targets (LRRK2, JAK1, MK2, MAPK 9/10) were sequence-prepared but excluded due to length constraints in Boltz scoring. (iii) The REINVENT reward ceiling around 0.75 reflects the Boltz affinity ceiling on novel chemistry — scaffold-restricted REINVENT (Mol2Mol or LibInvent on the NCT-503 / K58 cores) is the natural follow-up. Direct experimental validation of K58 against the Park / Chen 2025 fluorescence-polarization PHGDH–DNA binding assay would be the most informative next step.
 
 ## References
 
-*[to be formatted in ACS style after main text is finalized]*
-
-1. Chen, J. *et al.* Transcriptional regulation by PHGDH drives amyloid pathology in Alzheimer's disease. *Cell* **188**, 3513–3529 (2025). doi:10.1016/j.cell.2025.03.045
-2. (reserved — additional reference if needed for moonlighting background)
-3. Pacold, M. E. *et al.* A PHGDH inhibitor reveals coordination of serine synthesis and one-carbon unit fate. *Nat. Chem. Biol.* **12**, 452–458 (2016).
-4. Spillier, Q. *et al.* Structural and biochemical study of cellular PHGDH inhibitors. *J. Med. Chem.* **62**, 9526–9543 (2019).
-5. Mullarky, E. *et al.* Identification of a small molecule inhibitor of PHGDH. *PNAS* **113**, 1778–1783 (2016).
-6. Possemato, R. *et al.* Functional genomics reveal that PHGDH is essential for cancer growth. *Nature* **476**, 346–350 (2011).
-7. Locasale, J. W. *et al.* PHGDH copy number gain. *Nat. Genet.* **43**, 869–874 (2011).
-8. Wohlwend, J. *et al.* Boltz-1 / Boltz-2 protein-ligand affinity. *bioRxiv* (2024).
-9. Mirdita, M. *et al.* ColabFold: making protein folding accessible. *Nature Methods* **19**, 679–682 (2022).
-10. Loeffler, H. H. *et al.* REINVENT4. *J. Cheminformatics* **16**, 20 (2024).
-11. Eberhardt, J. *et al.* AutoDock Vina 1.2. *J. Chem. Inf. Model.* **61**, 3891–3898 (2021).
-12. Wang, K. *et al.* TamGen: target-aware molecular generation. (2024).
-13. Shindyalov, I. N. & Bourne, P. E. Protein structure alignment by incremental combinatorial extension. *Protein Eng.* **11**, 739–747 (1998).
+1. Chen, J.; et al. Transcriptional Regulation by PHGDH Drives Amyloid Pathology in Alzheimer's Disease. *Cell* **2025**, *188* (13), 3513–3529. DOI: 10.1016/j.cell.2025.03.045.
+2. Possemato, R.; et al. Functional Genomics Reveal That the Serine Synthesis Pathway is Essential in Breast Cancer. *Nature* **2011**, *476* (7360), 346–350. DOI: 10.1038/nature10350.
+3. Locasale, J. W.; et al. Phosphoglycerate Dehydrogenase Diverts Glycolytic Flux and Contributes to Oncogenesis. *Nat. Genet.* **2011**, *43* (9), 869–874. DOI: 10.1038/ng.890.
+4. Pacold, M. E.; et al. A PHGDH Inhibitor Reveals Coordination of Serine Synthesis and One-Carbon Unit Fate. *Nat. Chem. Biol.* **2016**, *12* (6), 452–458. DOI: 10.1038/nchembio.2070.
+5. Mullarky, E.; et al. Identification of a Small Molecule Inhibitor of 3-Phosphoglycerate Dehydrogenase to Target Serine Biosynthesis in Cancers. *Proc. Natl. Acad. Sci. U.S.A.* **2016**, *113* (7), 1778–1783. DOI: 10.1073/pnas.1521548113.
+6. Spillier, Q.; et al. Structural and Biochemical Insights into the Cellular Phosphoglycerate Dehydrogenase Inhibitor Class. *J. Med. Chem.* **2019**, *62* (21), 9526–9543. DOI: 10.1021/acs.jmedchem.9b00854.
+7. Wohlwend, J.; et al. Boltz-2: Joint Protein–Ligand Structure and Affinity Prediction. *bioRxiv* **2024**. DOI: 10.1101/2024.11.19.624167.
+8. Mirdita, M.; et al. ColabFold: Making Protein Folding Accessible to All. *Nat. Methods* **2022**, *19* (6), 679–682. DOI: 10.1038/s41592-022-01488-1.
+9. Loeffler, H. H.; et al. Reinvent 4: Modern AI-Driven Generative Molecule Design. *J. Cheminform.* **2024**, *16*, 20. DOI: 10.1186/s13321-024-00812-5.
+10. Eberhardt, J.; Santos-Martins, D.; Tillack, A. F.; Forli, S. AutoDock Vina 1.2.0: New Docking Methods, Expanded Force Field, and Python Bindings. *J. Chem. Inf. Model.* **2021**, *61* (8), 3891–3898. DOI: 10.1021/acs.jcim.1c00203.
+11. Wang, K.; et al. TamGen: Drug Design with Target-Aware Molecule Generation. *Preprint* **2024**.
+12. Shindyalov, I. N.; Bourne, P. E. Protein Structure Alignment by Incremental Combinatorial Extension (CE). *Protein Eng.* **1998**, *11* (9), 739–747. DOI: 10.1093/protein/11.9.739.
+13. Bickerton, G. R.; Paolini, G. V.; Besnard, J.; Muresan, S.; Hopkins, A. L. Quantifying the Chemical Beauty of Drugs. *Nat. Chem.* **2012**, *4* (2), 90–98. DOI: 10.1038/nchem.1243.
+14. Ertl, P.; Schuffenhauer, A. Estimation of Synthetic Accessibility Score of Drug-like Molecules. *J. Cheminform.* **2009**, *1*, 8. DOI: 10.1186/1758-2946-1-8.
+15. Lipinski, C. A.; Lombardo, F.; Dominy, B. W.; Feeney, P. J. Experimental and Computational Approaches to Estimate Solubility and Permeability in Drug Discovery and Development Settings. *Adv. Drug Deliv. Rev.* **1997**, *23* (1–3), 3–25. DOI: 10.1016/S0169-409X(96)00423-1.
 
 ## Author Contributions
 
-**Leo Joseph**: Conceptualization, pipeline architecture, AMD MI300A ROCm porting of Boltz-2 and TamGen, REINVENT4 + Boltz reward integration, manuscript writing.
-**Yashwin Madakamutil**: [TBD by team]
-**Cale Seymour**: [TBD by team]
-**Ziheng Wang**: [TBD by team]
-All authors: manuscript review and editing.
+**Leo Joseph**: Conceptualization, pipeline architecture, AMD MI300A ROCm porting of Boltz-2 and TamGen, REINVENT4 integration with Boltz-as-reward, ChEMBL library screening, manuscript writing.
+**Yashwin Madakamutil**: TamGen scaffold-seeded branch design and iterative-round execution, composite-reward formulation, REINVENT4 SLURM array scoring wrapper, data analysis.
+**Cale Seymour**: Off-target selectivity panel design (Rossmann-fold + GRK kinase), AutoDock Vina orthogonal rescore implementation, multi-conformation Boltz robustness analysis, structural pocket-overlap analysis.
+**Ziheng Wang**: PyMOL figure rendering (Figure 1A and Figure 4 panels), drug-likeness filter implementation (Lipinski / PAINS / Brenk / SA / QED), Tanimoto-similarity novelty scoring, manuscript review.
+All authors: review and editing.
+
+*Note: placeholder contribution statements; team to refine before submission.*
