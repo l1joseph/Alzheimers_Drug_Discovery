@@ -79,12 +79,9 @@ Combining Boltz-2 and Vina affinities with the six-target off-target panel (Figu
 
 The Tier 1 candidates were directly compared against the validated reference set on three axes (Figure 2, Figure 4). On **affinity**, ONS attains the strongest predicted PHGDH binding (Boltz −1.82, Vina −10.58 kcal/mol), with K5K (−1.79 / −9.19), K58 (−1.00 / −8.66), and NCT-503 (−0.30 / −8.14) following; all four sit firmly in the lead-grade range (Vina < −7 kcal/mol). On **drug-likeness**, Lipinski-window indices show ONS, K5K, and ONV at the upper Ro5 boundary (MW 499–510, logP 3.1–4.8) while NCT-503 (MW 408) and K58 (MW 349) are smaller and more CNS-druggable; the B1 series novel hits cluster at MW 309–469 with PAINS-clean / SA ≤ 4 profiles. On **binding pose** (Figure 4), the K58 6RJ3 co-crystal and the Boltz-predicted poses of K5K and r2b2_107 all engage the same pocket cleft with H-bond donors / acceptors making contact with residues in the 149–156 HHTH overlap region. r2b2_107 reproduces the K5K binding mode despite Tanimoto 0.16 to the parent — a successful scaffold-decoration outcome.
 
-| | | | |
-| :---: | :---: | :---: | :---: |
-| ![K58](../figures/paper/fig4_K58_real_6RJ3.png) | ![K5K](../figures/paper/fig4_K5K_boltz.png) | ![r2b2_107](../figures/paper/fig4_r2b2_107_boltz.png) | ![b4_112](../figures/paper/fig4_b4_112_boltz.png) |
-| **(a)** K58 (6RJ3, 1.42 Å) | **(b)** K5K (Boltz) | **(c)** r2b2_107 (Boltz) | **(d)** b4_112 (Boltz) |
+![Figure 4](../figures/paper/fig4_final.png)
 
-**Figure 4.** Binding-pose comparison. Cyan = ligand carbons; gray cartoon = PHGDH; wheat sticks = pocket residues within 5 Å; yellow dashes = H-bonds < 3.5 Å. **(a)** K58 real co-crystal — the top repurposing candidate (combined sel_idx −4.78). **(b)** K5K (BI-4924), validated NAD-competitive reference. **(c)** r2b2_107, the sole novel scaffold surviving both selectivity panels (Tier 2). **(d)** b4_112, the K58-seeded design with the strongest novel-scaffold affinity (Boltz −1.02) but failing selectivity (binds GAPDH −1.47 > PHGDH) — a visual illustration that affinity does not imply selectivity.
+**Figure 4.** Side-by-side comparison of representative candidates (K58, K5K, and the novel scaffold-seeded design). **(A)** 2D compound structures and molecular formulae. **(B)** Predicted 3D binding mode (cartoon + ligand) with a pocket-surface zoom showing engagement of the HHTH-DBD overlap region. **(C)** Drug-likeness and selectivity summary (Lipinski, PAINS, Brenk, QED, SA, Tanimoto to K58, novelty). The validated repurposing candidate K58 combines a clean drug-likeness/selectivity profile with the 1.42 Å co-crystal binding mode; the novel design attains comparable predicted affinity but fails the off-target selectivity criteria.
 
 ### 3.5 De novo design cannot recover the selectivity of its seeds
 
