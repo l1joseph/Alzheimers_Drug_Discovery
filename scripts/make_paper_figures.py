@@ -24,22 +24,67 @@ PROJECT = Path("/cosmos/nfs/home/l1joseph/Alzheimers_Drug_Discovery")
 OUT_DIR = PROJECT / "docs" / "figures" / "paper"
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 
-# Seaborn style + paper-style typography
-sns.set_theme(style="whitegrid", context="paper", font="DejaVu Sans")
-plt.rcParams.update({
-    "font.size": 9,
-    "axes.titlesize": 10,
-    "axes.titleweight": "bold",
-    "axes.labelsize": 9,
-    "xtick.labelsize": 8,
-    "ytick.labelsize": 8,
-    "legend.fontsize": 8,
-    "axes.spines.top": False,
-    "axes.spines.right": False,
-    "savefig.dpi": 300,
-    "savefig.bbox": "tight",
-    "svg.fonttype": "none",
-})
+# ---------- Publication style (Nature journal spec, per /fig skill) ---------- #
+# Paul Tol colorblind-safe qualitative palette
+PALETTE = [
+    '#332288', '#88CCEE', '#44AA99', '#117733', '#999933',
+    '#DDCC77', '#CC6677', '#882255', '#AA4499',
+]
+CMAP_SEQ = 'viridis'
+CMAP_DIV = 'RdBu_r'
+
+NATURE_WIDTHS = {'single': 3.50, '1.5col': 5.04, 'double': 7.09}
+NATURE_MAX_H = 6.69
+NATURE_DPI = 450
+NATURE_FORMATS = ['pdf', 'png']
+
+NATURE_RC = {
+    'font.family': 'sans-serif',
+    'font.sans-serif': ['Arial', 'Helvetica', 'DejaVu Sans'],
+    'font.size': 7,
+    'axes.titlesize': 8,
+    'axes.labelsize': 7,
+    'xtick.labelsize': 6,
+    'ytick.labelsize': 6,
+    'legend.fontsize': 5,
+    'legend.title_fontsize': 6,
+    'figure.titlesize': 8,
+    'axes.linewidth': 0.5,
+    'xtick.major.width': 0.5,
+    'ytick.major.width': 0.5,
+    'lines.linewidth': 0.75,
+    'patch.linewidth': 0.5,
+    'grid.linewidth': 0.3,
+    'xtick.major.size': 3,
+    'ytick.major.size': 3,
+    'xtick.direction': 'out',
+    'ytick.direction': 'out',
+    'axes.spines.top': False,
+    'axes.spines.right': False,
+    'axes.grid': False,
+    'axes.axisbelow': True,
+    'legend.frameon': False,
+    'figure.dpi': 150,
+    'savefig.dpi': 450,
+    'figure.facecolor': 'white',
+    'axes.facecolor': 'white',
+    'image.interpolation': 'nearest',
+    'mathtext.fontset': 'dejavusans',
+    'pdf.fonttype': 42,
+    'svg.fonttype': 'none',
+}
+sns.set_theme(rc=NATURE_RC)
+plt.rcParams.update(NATURE_RC)
+plt.rcParams['axes.prop_cycle'] = plt.cycler(color=PALETTE)
+
+
+def _save(fig, name):
+    """Save in Nature formats (pdf + png) at 450 DPI; also keep svg for the repo."""
+    for ext in NATURE_FORMATS + ['svg']:
+        out = OUT_DIR / f"{name}.{ext}"
+        fig.savefig(out, dpi=NATURE_DPI, bbox_inches="tight", pad_inches=0.02,
+                    facecolor="white")
+        print(f"wrote {out}")
 
 # ---------- Top-10 candidate set ---------- #
 TOP10 = [
@@ -56,10 +101,10 @@ TOP10 = [
     ("b1_005",   "b1_005",              "novel-allo"),
 ]
 
-CLASS_COLORS = {
-    "validated":  "#1f77b4",
-    "novel-NAD":  "#2ca02c",
-    "novel-allo": "#ff7f0e",
+CLASS_COLORS = {  # Paul Tol colorblind-safe (from PALETTE)
+    "validated":  "#332288",  # indigo
+    "novel-NAD":  "#44AA99",  # teal
+    "novel-allo": "#CC6677",  # rose
 }
 CLASS_LABELS = {
     "validated":  "Validated (known PHGDH binders)",
@@ -216,10 +261,7 @@ def fig2_metrics(df):
 
     # Reserve bottom margin for the legend; don't use tight_layout (it fights hspace)
     fig.subplots_adjust(left=0.10, right=0.97, top=0.95, bottom=0.10)
-    for ext in ("png", "svg"):
-        out = OUT_DIR / f"fig2_metrics_top10.{ext}"
-        fig.savefig(out, dpi=300, bbox_inches="tight")
-        print(f"wrote {out}")
+    _save(fig, "fig2_metrics_top10")
     plt.close(fig)
 
 
@@ -262,10 +304,7 @@ def fig3_selectivity():
                  fontsize=9, pad=10)
 
     plt.tight_layout()
-    for ext in ("png", "svg"):
-        out = OUT_DIR / f"fig3_selectivity_heatmap.{ext}"
-        fig.savefig(out, dpi=300)
-        print(f"wrote {out}")
+    _save(fig, "fig3_selectivity_heatmap")
     plt.close(fig)
 
 
@@ -303,10 +342,7 @@ def fig_supp_reinvent():
     ax.legend(loc="lower right", title="")
 
     plt.tight_layout()
-    for ext in ("png", "svg"):
-        out = OUT_DIR / f"fig_supp_reinvent_curve.{ext}"
-        fig.savefig(out, dpi=300)
-        print(f"wrote {out}")
+    _save(fig, "fig_supp_reinvent_curve")
     plt.close(fig)
 
 
