@@ -46,6 +46,11 @@ PANELS = [
         PRED_DIR / "r2b2_107_boltz_pred.cif",
         "not polymer and not solvent",
     ),
+    (
+        "fig4_b4_112_boltz",
+        PRED_DIR / "b4_112_boltz_pred.cif",
+        "not polymer and not solvent",
+    ),
 ]
 
 
