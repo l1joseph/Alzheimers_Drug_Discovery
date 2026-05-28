@@ -102,7 +102,7 @@ Limitations of this study include (i) the absence of experimental affinity measu
 **Leo Joseph**: Conceptualization, pipeline architecture, AMD MI300A ROCm porting of Boltz-2 and TamGen, REINVENT4 integration with Boltz-as-reward, ChEMBL library screening, manuscript writing.
 **Yashwin Madakamutil**: TamGen scaffold-seeded branch design and iterative-round execution, composite-reward formulation, REINVENT4 SLURM array scoring wrapper, data analysis.
 **Cale Seymour**: Off-target selectivity panel design (Rossmann-fold + GRK kinase), AutoDock Vina orthogonal rescore implementation, multi-conformation Boltz robustness analysis, structural pocket-overlap analysis.
-**Ziheng Wang**: PyMOL figure rendering (Figure 1A and Figure 4 panels), drug-likeness filter implementation (Lipinski / PAINS / Brenk / SA / QED), Tanimoto-similarity novelty scoring, manuscript review.
+**Ziheng Wang**: PyMOL structural visualization and figure rendering, drug-likeness filter implementation (Lipinski / PAINS / Brenk / SA / QED), Tanimoto-similarity novelty scoring, manuscript review.
 All authors: review and editing.
 
 *Note: placeholder contribution statements; team to refine before submission.*
