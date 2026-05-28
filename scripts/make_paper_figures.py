@@ -135,10 +135,15 @@ def load_top10_dataframe():
 # ---------- Figure 2 — top-10 metrics multi-panel ---------- #
 
 def fig2_metrics(df):
-    fig, axes = plt.subplots(2, 2, figsize=(7.4, 6.2))
+    # Taller figure + generous row spacing so bottom-row titles clear the
+    # top-row rotated x-tick labels. Titles kept short (details live in caption).
+    fig, axes = plt.subplots(2, 2, figsize=(8.0, 8.6),
+                             gridspec_kw={"hspace": 0.55, "wspace": 0.30})
 
     palette = {c: CLASS_COLORS[c] for c in df["class"].unique()}
     order = df["id"].tolist()
+    labels = [r["label"] for r in df.to_dict("records")]
+    TITLE_PAD = 10
 
     # A: Boltz affinity
     ax = axes[0, 0]
@@ -147,11 +152,9 @@ def fig2_metrics(df):
     ax.invert_yaxis()
     ax.set_ylabel("Boltz-2 affinity (logKd-like)")
     ax.set_xlabel("")
-    ax.set_title("A   Predicted affinity vs PHGDH", loc="left")
-    ax.set_xticklabels([r["label"] for r in df.to_dict("records")], rotation=45, ha="right", fontsize=7)
+    ax.set_title("A   Predicted affinity", loc="left", pad=TITLE_PAD)
+    ax.set_xticklabels(labels, rotation=45, ha="right", fontsize=7)
     ax.axhline(0, color="black", linewidth=0.4)
-    ax.text(0.02, 0.95, "more negative = stronger binding", transform=ax.transAxes,
-            fontsize=7, style="italic", verticalalignment="top")
     ax.legend_.remove() if ax.legend_ else None
 
     # B: Vina rescore
@@ -161,14 +164,14 @@ def fig2_metrics(df):
     ax.invert_yaxis()
     ax.set_ylabel("AutoDock Vina (kcal/mol)")
     ax.set_xlabel("")
-    ax.set_title("B   Orthogonal Vina rescore", loc="left")
-    ax.set_xticklabels([r["label"] for r in df.to_dict("records")], rotation=45, ha="right", fontsize=7)
+    ax.set_title("B   Orthogonal Vina rescore", loc="left", pad=TITLE_PAD)
+    ax.set_xticklabels(labels, rotation=45, ha="right", fontsize=7)
     for i, v in enumerate(df["vina_kcal"]):
         if pd.isna(v):
             ax.text(i, 0, "n/a", ha="center", va="center", fontsize=7, color="gray")
     ax.legend_.remove() if ax.legend_ else None
 
-    # C: Drug-likeness — seaborn heatmap of NORMALIZED-to-ideal values
+    # C: Drug-likeness heatmap
     ax = axes[1, 0]
     metrics = ["MW", "logP", "HBD", "HBA", "SA"]
     ideals = {"MW": (200, 500), "logP": (0, 5), "HBD": (0, 5), "HBA": (0, 10), "SA": (1, 4)}
@@ -181,16 +184,13 @@ def fig2_metrics(df):
     for i in range(raw.shape[0]):
         for j in range(raw.shape[1]):
             v = raw[i, j]
-            if np.isnan(v):
-                annot[i, j] = "—"
-            else:
-                annot[i, j] = f"{v:.0f}" if metrics[j] == "MW" else f"{v:.1f}"
+            annot[i, j] = "—" if np.isnan(v) else (f"{v:.0f}" if metrics[j] == "MW" else f"{v:.1f}")
     sns.heatmap(norm, annot=annot, fmt="", cmap="RdYlGn_r", vmin=0, vmax=1.2,
                 cbar=False, linewidths=0.4, linecolor="white",
                 xticklabels=metrics,
                 yticklabels=[r["label"].replace("\n", " ") for r in df.to_dict("records")],
                 annot_kws={"fontsize": 7}, ax=ax)
-    ax.set_title("C   Drug-likeness (green=ideal, red=Lipinski/SA fail)", loc="left")
+    ax.set_title("C   Drug-likeness", loc="left", pad=TITLE_PAD)
     ax.set_ylabel("")
     ax.tick_params(axis="y", rotation=0, labelsize=7)
 
@@ -198,26 +198,27 @@ def fig2_metrics(df):
     ax = axes[1, 1]
     sns.barplot(data=df, x="id", y="sel_combined", hue="class", palette=palette,
                 order=order, ax=ax, edgecolor="black", linewidth=0.5, dodge=False)
-    ax.set_ylabel("Combined selectivity index\n(dehydrogenase + kinase)")
+    ax.set_ylabel("Combined selectivity index")
     ax.set_xlabel("")
-    ax.set_title("D   Off-target selectivity (lower = more PHGDH-selective)", loc="left")
-    ax.set_xticklabels([r["label"] for r in df.to_dict("records")], rotation=45, ha="right", fontsize=7)
+    ax.set_title("D   Off-target selectivity", loc="left", pad=TITLE_PAD)
+    ax.set_xticklabels(labels, rotation=45, ha="right", fontsize=7)
     ax.axhline(0, color="black", linewidth=0.4)
     ax.axhline(-2.0, color="darkgreen", linewidth=0.6, linestyle="--", alpha=0.6)
-    ax.text(0.02, 0.04, "dashed line: Tier-1 cutoff (−2.0)", transform=ax.transAxes,
+    ax.text(0.02, 0.04, "dashed: Tier-1 cutoff (−2.0)", transform=ax.transAxes,
             fontsize=7, style="italic", color="darkgreen")
     ax.legend_.remove() if ax.legend_ else None
 
-    # Single legend for the whole figure
+    # Single shared legend at the bottom
     handles = [plt.Rectangle((0, 0), 1, 1, facecolor=CLASS_COLORS[c], edgecolor="black", linewidth=0.5)
                for c in ["validated", "novel-NAD", "novel-allo"]]
     fig.legend(handles, [CLASS_LABELS[c] for c in ["validated", "novel-NAD", "novel-allo"]],
-               loc="lower center", ncol=3, bbox_to_anchor=(0.5, -0.04), frameon=False)
+               loc="lower center", ncol=3, bbox_to_anchor=(0.5, -0.01), frameon=False)
 
-    plt.tight_layout(rect=(0, 0.03, 1, 1))
+    # Reserve bottom margin for the legend; don't use tight_layout (it fights hspace)
+    fig.subplots_adjust(left=0.10, right=0.97, top=0.95, bottom=0.10)
     for ext in ("png", "svg"):
         out = OUT_DIR / f"fig2_metrics_top10.{ext}"
-        fig.savefig(out, dpi=300)
+        fig.savefig(out, dpi=300, bbox_inches="tight")
         print(f"wrote {out}")
     plt.close(fig)
 
