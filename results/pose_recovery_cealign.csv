@@ -1,0 +1,6 @@
+case,ligand_resname,cealign_protein_rmsd,n_aligned_residues,centroid_rmsd,heavy_atom_rmsd_naive
+6RJ6_K5K,K5K,1.198,200,0.713,7.123
+6PLF_ONV,ONV,0.617,304,0.514,8.57
+6PLG_ONS,ONS,1.068,296,0.942,7.889
+6RJ3_K58,K58,0.944,296,0.552,6.498
+7EWH_HMT,HMT,0.909,296,1.146,6.26
