@@ -75,7 +75,7 @@ def fig_pose_recovery():
     ax.set_ylabel("Ligand centroid RMSD\nvs crystal (Å)")
     ax.set_xlabel("")
     ax.set_ylim(0, 2.4)
-    ax.set_title("Boltz-2 pose recovery (cealign-corrected)", pad=6)
+    ax.set_title("Boltz-2 pose recovery", pad=6)
     _save(fig, "fig_supp_pose_recovery")
 
 

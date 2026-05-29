@@ -267,8 +267,8 @@ def fig2_metrics(df):
     ax.set_xticklabels(labels, rotation=45, ha="right", fontsize=7)
     ax.axhline(0, color="black", linewidth=0.4)
     ax.axhline(-2.0, color="darkgreen", linewidth=0.6, linestyle="--", alpha=0.6)
-    ax.text(0.02, 0.04, "dashed: Tier-1 cutoff (−2.0)", transform=ax.transAxes,
-            fontsize=7, style="italic", color="darkgreen")
+    ax.text(0.98, 0.04, "dashed: Tier-1 cutoff (−2.0)", transform=ax.transAxes,
+            fontsize=7, style="italic", color="darkgreen", ha="right")
     ax.legend_.remove() if ax.legend_ else None
 
     # Single shared legend at the bottom

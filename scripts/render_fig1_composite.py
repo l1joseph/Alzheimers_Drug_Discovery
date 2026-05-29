@@ -223,11 +223,11 @@ def _flow_stage(ax, x, y, w, h, title, sub_items, color):
                            linewidth=1.5, edgecolor="black",
                            facecolor=color, alpha=0.55)
     ax.add_patch(outer)
-    ax.text(x + w / 2, y + h - 0.18, title,
+    ax.text(x + w / 2, y + h - 0.08, title,
             ha="center", va="top", fontsize=10.5, fontweight="bold",
             color="black")
     n = len(sub_items)
-    inner_top = y + h - 0.40
+    inner_top = y + h - 0.44
     inner_bot = y + 0.18
     sub_h = (inner_top - inner_bot) / max(n, 1) - 0.05
     for i, label in enumerate(sub_items):
