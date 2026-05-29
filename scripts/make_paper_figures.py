@@ -215,7 +215,7 @@ def fig2_metrics(df):
     ax.invert_yaxis()
     ax.set_ylabel("Boltz-2 affinity (logKd-like)")
     ax.set_xlabel("")
-    ax.set_title("A   Predicted affinity", loc="left", pad=TITLE_PAD)
+    ax.set_title("a   Predicted affinity", loc="left", pad=TITLE_PAD)
     ax.set_xticklabels(labels, rotation=45, ha="right", fontsize=7)
     ax.axhline(0, color="black", linewidth=0.4)
     ax.legend_.remove() if ax.legend_ else None
@@ -227,7 +227,7 @@ def fig2_metrics(df):
     ax.invert_yaxis()
     ax.set_ylabel("AutoDock Vina (kcal/mol)")
     ax.set_xlabel("")
-    ax.set_title("B   Orthogonal Vina rescore", loc="left", pad=TITLE_PAD)
+    ax.set_title("b   Orthogonal Vina rescore", loc="left", pad=TITLE_PAD)
     ax.set_xticklabels(labels, rotation=45, ha="right", fontsize=7)
     for i, v in enumerate(df["vina_kcal"]):
         if pd.isna(v):
@@ -253,7 +253,7 @@ def fig2_metrics(df):
                 xticklabels=metrics,
                 yticklabels=[r["label"].replace("\n", " ") for r in df.to_dict("records")],
                 annot_kws={"fontsize": 7}, ax=ax)
-    ax.set_title("C   Drug-likeness", loc="left", pad=TITLE_PAD)
+    ax.set_title("c   Drug-likeness", loc="left", pad=TITLE_PAD)
     ax.set_ylabel("")
     ax.tick_params(axis="y", rotation=0, labelsize=7)
 
@@ -263,7 +263,7 @@ def fig2_metrics(df):
                 order=order, ax=ax, edgecolor="black", linewidth=0.5, dodge=False)
     ax.set_ylabel("Combined selectivity index")
     ax.set_xlabel("")
-    ax.set_title("D   Off-target selectivity", loc="left", pad=TITLE_PAD)
+    ax.set_title("d   Off-target selectivity", loc="left", pad=TITLE_PAD)
     ax.set_xticklabels(labels, rotation=45, ha="right", fontsize=7)
     ax.axhline(0, color="black", linewidth=0.4)
     ax.axhline(-2.0, color="darkgreen", linewidth=0.6, linestyle="--", alpha=0.6)

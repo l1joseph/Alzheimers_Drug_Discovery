@@ -79,7 +79,23 @@ def fig_pose_recovery():
     _save(fig, "fig_supp_pose_recovery")
 
 
+def fig_distance_matrix():
+    df = pd.read_csv(PROJECT / "results" / "pocket_centroid_distances.csv", index_col=0)
+    short = [c.split("(")[-1].rstrip(")").strip() if "(" in c else c for c in df.index]
+    df.index = short
+    df.columns = short
+    fig, ax = plt.subplots(figsize=(3.9, 3.3))
+    sns.heatmap(df, annot=True, fmt=".1f", cmap="rocket_r", square=True,
+                linewidths=0.5, linecolor="white", annot_kws={"fontsize": 6},
+                cbar_kws={"label": "centroid distance (Å)"}, ax=ax)
+    ax.set_title("Ligand centroid distances in the apo frame", pad=6)
+    ax.tick_params(axis="x", rotation=45)
+    ax.tick_params(axis="y", rotation=0)
+    _save(fig, "fig_supp_distance_matrix")
+
+
 if __name__ == "__main__":
     OUT.mkdir(parents=True, exist_ok=True)
     fig_boltz_vina()
     fig_pose_recovery()
+    fig_distance_matrix()
