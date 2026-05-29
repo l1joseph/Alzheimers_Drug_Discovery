@@ -139,7 +139,7 @@ def main():
 
     fig.text(0.085, 0.985, "a", fontsize=12, fontweight="bold", va="top")
     fig.text(0.085, 0.660, "b", fontsize=12, fontweight="bold", va="top")
-    fig.text(0.085, 0.305, "c", fontsize=12, fontweight="bold", va="top")
+    fig.text(0.085, 0.350, "c", fontsize=12, fontweight="bold", va="bottom")
 
     for ext in ("png", "svg"):
         fig.savefig(OUT / f"fig4_composite.{ext}", dpi=450, bbox_inches="tight",
