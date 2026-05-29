@@ -103,7 +103,7 @@ TOP10 = [
     ("ONV",      "ONV\n(Pacold 1)",     "validated"),
     ("r2b2_107", "r2b2_107",            "novel-NAD"),
     ("r2b2_285", "r2b2_285",            "novel-NAD"),
-    ("b1_115",   "b1_115",              "novel-allo"),
+    ("b1_058",   "b1_058",              "novel-allo"),
     ("b1_051",   "b1_051",              "novel-allo"),
     ("b1_005",   "b1_005",              "novel-allo"),
 ]
@@ -148,7 +148,13 @@ def load_top10_dataframe():
         mc = multiconf.get(cid, {})
         k = known.get(cid, {})
 
-        boltz_aff = _f(mc.get("a6cwa_apo")) if mc.get("a6cwa_apo") else _f(t.get("affinity_C1"))
+        # Primary PHGDH affinity: use the selectivity-table PHGDH column (matches
+        # the paper text and covers known reference binders), then top50, then multiconf.
+        boltz_aff = _f(sd.get("PHGDH"))
+        if np.isnan(boltz_aff):
+            boltz_aff = _f(t.get("affinity_C1"))
+        if np.isnan(boltz_aff):
+            boltz_aff = _f(mc.get("a6cwa_apo"))
         vina_kcal = _f(v.get("vina_local_only"))
 
         mw = _f(t.get("MW"))
@@ -157,10 +163,11 @@ def load_top10_dataframe():
         hba = _f(t.get("HBA"))
         sa = _f(t.get("SA_score"))
 
-        # Validated knowns need property computation from SMILES
+        # Validated knowns are not in top50 — compute properties (incl. SA) from SMILES
         if np.isnan(mw) and k.get("smiles"):
+            import os, sys
             from rdkit import Chem, RDLogger
-            from rdkit.Chem import Descriptors
+            from rdkit.Chem import Descriptors, RDConfig
             RDLogger.DisableLog("rdApp.*")
             mol = Chem.MolFromSmiles(k["smiles"])
             if mol:
@@ -168,6 +175,10 @@ def load_top10_dataframe():
                 logp = Descriptors.MolLogP(mol)
                 hbd = Descriptors.NumHDonors(mol)
                 hba = Descriptors.NumHAcceptors(mol)
+                if np.isnan(sa):
+                    sys.path.append(os.path.join(RDConfig.RDContribDir, "SA_Score"))
+                    import sascorer
+                    sa = sascorer.calculateScore(mol)
 
         sel_d = _f(sd.get("selectivity_index"))
         sel_k = _f(sk.get("kinase_sel_idx"))
