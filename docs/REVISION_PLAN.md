@@ -71,7 +71,7 @@ These produce the numbers and figures the manuscript edits depend on. Do first.
 - **Supp Fig (new):** Boltz-vs-Vina scatter (M3).
 - **Supp table (new):** FPocket druggability summary (M2).
 - **Fig 4:** update/caveat the K5K panel per M1 outcome.
-- **m2:** confirm the **Fig 1a colour key** with Ziheng (cyan=HHTH-DBD 103–165, green=NAD⁺/NADH were inferred) and finalize legend/caption.
+- **m2:** ✓ RESOLVED — Ziheng confirmed the Fig 1a colour key (cyan = HHTH-DBD 103–165, green = NAD⁺/NADH); legend and caption are final.
 - Add error bars to the Fig 2a affinity panel if R1 lands cleanly.
 
 ---
