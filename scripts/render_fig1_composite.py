@@ -27,7 +27,7 @@ from matplotlib.gridspec import GridSpec
 
 PROJECT = Path("/cosmos/nfs/home/l1joseph/Alzheimers_Drug_Discovery")
 OUT_DIR = PROJECT / "docs" / "figures" / "paper"
-PANEL_A_PNG = OUT_DIR / "fig1A_phgdh_pockets.png"
+PANEL_A_PNG = OUT_DIR / "fig1a.png"   # Ziheng's structural render
 OUT_PNG = OUT_DIR / "fig1_target_pipeline.png"
 OUT_SVG = OUT_DIR / "fig1_target_pipeline.svg"
 
@@ -75,20 +75,18 @@ def draw_panel_a(ax):
     ax.spines[:].set_visible(False)
     ax.grid(False)
 
-    ax.set_title("a   PHGDH target: inhibitor pocket overlaps the HHTH-DBD motif",
+    ax.set_title("a   PHGDH target: cofactor pocket abuts the HHTH-DBD motif",
                  loc="left", fontsize=12, fontweight="bold")
 
-    # Inset legend with color swatches
+    # Legend keyed to Ziheng's render (colours sampled from fig1a.png)
     legend_items = [
-        (COLOR_HHTH,    "HHTH-DBD ribbon (residues 103–165)"),
-        (COLOR_OVERLAP, "Pocket residues in HHTH (149–156)"),
-        (COLOR_POCKET,  "Pocket residues outside HHTH"),
-        (COLOR_NADH,    "NADH cofactor (6CWA)"),
-        (COLOR_INH,     "K58 inhibitor (6RJ3)"),
+        ("#bfbfbf", "PHGDH apo monomer (6CWA)"),
+        ("#00d1d1", "HHTH-DBD motif (residues 103–165)"),
+        ("#28c828", "NAD$^+$/NADH cofactor"),
     ]
     legend_x = 0.02
     legend_y_top = 0.97
-    line_h = 0.045
+    line_h = 0.050
     for i, (color, label) in enumerate(legend_items):
         y = legend_y_top - i * line_h
         ax.add_patch(mpatches.Rectangle(

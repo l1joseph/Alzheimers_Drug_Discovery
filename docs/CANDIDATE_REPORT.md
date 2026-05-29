@@ -70,8 +70,8 @@ Almost every published PHGDH inhibitor was optimized for catalytic inhibition. O
 
 | ID | Name | Mechanism | Boltz aff (v1) | Mean across 4 confs | Dehydrogenase sel_idx | Kinase sel_idx | **Combined sel_idx** | Vina | Source paper |
 |---|---|---|---|---|---|---|---|---|---|
-| **K58** | **BI-cmpd-15** | NAD-competitive | −1.0 | not multi-conf | **−2.36** | **−2.42** | **−4.78** | not rescored | Spillier 2019 *J Med Chem* |
-| **K5K** | **BI-4924** | NAD-competitive | −1.79 | −1.56 (stdev 0.18) | −1.62 | −1.93 | **−3.55** | −9.19 | Spillier 2019 *J Med Chem* |
+| **K58** | **BI-cmpd-15** | NAD-competitive | −1.0 | not multi-conf | **−2.36** | **−2.42** | **−4.78** | not rescored | Weinstabl 2019 *J Med Chem* |
+| **K5K** | **BI-4924** | NAD-competitive | −1.79 | −1.56 (stdev 0.18) | −1.62 | −1.93 | **−3.55** | −9.19 | Weinstabl 2019 *J Med Chem* |
 | **NCT-503** | NCT-503 | Allosteric | −0.30 | not multi-conf | −1.46 | −1.26 | **−2.72** | not rescored | Pacold 2016 *Nat Chem Biol* |
 | **ONS** | NCT-cmpd-15 | Allosteric | −1.82 | −1.65 (stdev 0.26) | −0.76 | **−1.82** | **−2.58** | −10.58 | Pacold 2016 |
 | ONV | NCT-cmpd-1 | Allosteric | −1.02 | −0.34 (stdev 0.14) | −1.13 | −0.53 | −1.66 | −8.00 | Pacold 2016 |
@@ -200,7 +200,7 @@ Primary AD biology:
 Chemistry / inhibitor design:
 - **Pacold et al. 2016** *Nat Chem Biol* — NCT-503, NCT-cmpd-1, NCT-cmpd-15 allosteric series
 - **Mullarky et al. 2016** *PNAS* — CBR-5884 covalent Cys234 inhibitor
-- **Spillier et al. 2019** *J Med Chem* — BI-4924 / BI-cmpd-15 NAD-competitive series (Boehringer)
+- **Weinstabl et al. 2019** *J Med Chem* (DOI 10.1021/acs.jmedchem.9b00718) — BI-4924 (PDB 6RJ6, ligand K5K) / compound 15 (PDB 6RJ3, ligand K58) NAD-competitive series (Boehringer Ingelheim)
 
 Cancer context (why the field cares about PHGDH):
 - **Possemato et al. 2011** *Nature*

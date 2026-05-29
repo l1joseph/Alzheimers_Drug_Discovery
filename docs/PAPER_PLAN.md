@@ -63,7 +63,7 @@
 3. **Limitations + future work** — no experimental validation in this study; Boltz affinity stochasticity (multi-seed averaging would help); LRRK2 excluded due to length limit; scaffold-restricted REINVENT (Mol2Mol / LibInvent on the NCT-503 core) is the natural next iteration. **One sentence on experimental follow-up**: The Park 2025 fluorescence-polarization PHGDH-DNA binding assay would be the most direct downstream test of the Tier 1 candidates' DBD-blocking activity.
 
 ### References (10–12, ACS-style numbered)
-Park 2025, Zhong 2025, Pacold 2016, Spillier 2019, Mullarky 2016, Possemato 2011, Locasale 2011, Wohlwend 2024 (Boltz), Mirdita 2022 (ColabFold), Loeffler 2024 (REINVENT4), Trott & Olson 2010 (Vina), Bickerton 2012 (QED).
+Park 2025, Zhong 2025, Pacold 2016, Weinstabl 2019, Mullarky 2016, Possemato 2011, Locasale 2011, Wohlwend 2024 (Boltz), Mirdita 2022 (ColabFold), Loeffler 2024 (REINVENT4), Trott & Olson 2010 (Vina), Bickerton 2012 (QED).
 
 ### Author Contributions
 Template (single-author version):

@@ -96,11 +96,11 @@ def _save(fig, name):
 # ---------- Top-10 candidate set ---------- #
 TOP10 = [
     # (id, label, source_class)
-    ("K58",      "K58\n(BI-cmpd-15)",   "validated"),
+    ("K58",      "K58\n(Weinstabl 15)", "validated"),
     ("K5K",      "K5K\n(BI-4924)",      "validated"),
     ("NCT503",   "NCT-503",             "validated"),
-    ("ONS",      "ONS\n(NCT-cmpd-15)",  "validated"),
-    ("ONV",      "ONV\n(NCT-cmpd-1)",   "validated"),
+    ("ONS",      "ONS\n(Pacold 15)",    "validated"),
+    ("ONV",      "ONV\n(Pacold 1)",     "validated"),
     ("r2b2_107", "r2b2_107",            "novel-NAD"),
     ("r2b2_285", "r2b2_285",            "novel-NAD"),
     ("b1_115",   "b1_115",              "novel-allo"),
